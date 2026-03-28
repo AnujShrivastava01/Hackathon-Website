@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Menu, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { REGISTRATION_URL } from '../constants';
 
 const BRAND = 'HackOcean';
 
-const Navbar = ({ event }) => {
+const Navbar = () => {
+  const registerHref = REGISTRATION_URL;
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const logoTitle = BRAND;
@@ -70,7 +72,7 @@ const Navbar = ({ event }) => {
 
           <div className="hidden md:flex items-center gap-2 shrink-0 z-10">
             <a
-              href={event?.registrationLink || '#contact'}
+              href={registerHref}
               className="btn-neo py-2.5 px-5 text-xs lg:text-sm whitespace-nowrap"
               target="_blank"
               rel="noopener noreferrer"
@@ -112,7 +114,7 @@ const Navbar = ({ event }) => {
                 </a>
               ))}
               <a
-                href={event?.registrationLink || '#contact'}
+                href={registerHref}
                 onClick={() => setIsOpen(false)}
                 className="btn-neo w-full text-center mt-2"
                 target="_blank"

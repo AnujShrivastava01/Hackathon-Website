@@ -1,6 +1,7 @@
 import React from 'react';
 import { Mail, Phone, MapPin, ArrowRight } from 'lucide-react';
 import { FaTwitter, FaLinkedin, FaGithub, FaInstagram } from 'react-icons/fa';
+import { REGISTRATION_URL } from '../constants';
 
 const BRAND = 'HackOcean';
 
@@ -17,6 +18,7 @@ const ContactInfo = ({ icon: Icon, label, value }) => (
 );
 
 const Contact = ({ event }) => {
+  const registerHref = REGISTRATION_URL;
   const socialLinks = [
     { icon: FaTwitter, href: event?.socialLinks?.twitter || '#', bg: 'bg-ink' },
     { icon: FaLinkedin, href: event?.socialLinks?.linkedin || '#', bg: 'bg-highlight-blue' },
@@ -85,7 +87,7 @@ const Contact = ({ event }) => {
               </p>
 
               <a
-                href={event?.registrationLink || '#'}
+                href={registerHref}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="btn-ink w-full max-w-sm flex items-center justify-center gap-3 !py-4 rounded-none border-[3px]"

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import api from '../api';
+import { REGISTRATION_URL } from '../constants';
 import { LayoutDashboard, Calendar, Clock, HelpCircle, Settings, LogOut, Plus, Trash2, Save, ExternalLink, RefreshCw } from 'lucide-react';
 import toast, { Toaster } from 'react-hot-toast';
 
@@ -239,7 +240,7 @@ const AdminDashboard = () => {
                           </div>
                           <div className="space-y-2">
                              <label className="text-xs font-black uppercase tracking-widest text-ink/60 ml-1">Registration link</label>
-                             <input value={event.registrationLink} onChange={(e) => setEvent({...event, registrationLink: e.target.value})} className="w-full bg-bg border-2 border-ink rounded-xl p-4 focus:ring-2 focus:ring-ink/20 text-ink font-medium shadow-neo-sm" />
+                             <input value={event.registrationLink} onChange={(e) => setEvent({...event, registrationLink: e.target.value})} placeholder={REGISTRATION_URL} className="w-full bg-bg border-2 border-ink rounded-xl p-4 focus:ring-2 focus:ring-ink/20 text-ink font-medium shadow-neo-sm" />
                           </div>
                           <div className="space-y-2">
                              <label className="text-xs font-black uppercase tracking-widest text-ink/60 ml-1">Venue</label>

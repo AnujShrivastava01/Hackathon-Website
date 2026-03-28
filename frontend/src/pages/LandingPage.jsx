@@ -67,7 +67,7 @@ const LandingPage = () => {
           },
         }}
       />
-      <Navbar event={event} />
+      <Navbar />
       <Hero event={event} />
       <About event={event} />
       <Agenda agendas={agendas} />

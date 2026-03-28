@@ -2,10 +2,12 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { ArrowRight, Code, Cpu, Terminal } from 'lucide-react';
 import HeroUnderwater from './HeroUnderwater';
+import { REGISTRATION_URL } from '../constants';
 
 const BRAND = 'HackOcean';
 
 const Hero = ({ event }) => {
+  const registerHref = REGISTRATION_URL;
   const title = event?.name || BRAND;
   const parts = title.trim().split(/\s+/);
   const lastWord = parts.length > 1 ? parts[parts.length - 1] : null;
@@ -55,7 +57,7 @@ const Hero = ({ event }) => {
 
             <div className="flex flex-wrap items-center gap-4">
               <a
-                href={event?.registrationLink || '#contact'}
+                href={registerHref}
                 className="btn-neo text-base !py-4 px-8"
                 target="_blank"
                 rel="noopener noreferrer"
