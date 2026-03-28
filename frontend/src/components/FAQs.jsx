@@ -46,17 +46,7 @@ const FAQItem = ({ faq }) => {
   );
 };
 
-const FAQs = ({ faqs }) => {
-  const defaultFAQs = [
-    { question: 'Who can participate?', answer: 'Students, professionals, designers, and curious builders. Solo or in teams (up to four) — we help match people on day one if needed.' },
-    { question: 'What is the registration fee?', answer: 'HackOcean is free to attend. Food, swag, and workspace access are covered by our partners.' },
-    { question: 'How do I join a team?', answer: 'List teammates when you register, or show up solo and join the team formation block at kick-off.' },
-    { question: 'What should I bring?', answer: 'Laptop, charger, and anything you need to stay comfortable for a long sprint. We provide Wi‑Fi, power, and caffeine diplomacy.' },
-    { question: 'What if I have never hacked before?', answer: 'That is the point. Workshops and mentors are there so your first ship happens in good company.' },
-  ];
-
-  const data = faqs && faqs.length > 0 ? faqs : defaultFAQs;
-
+const FAQs = ({ faqs = [] }) => {
   return (
     <section id="faqs" className="section-padding bg-bg border-t-4 border-ink">
       <div className="max-w-4xl mx-auto px-4 sm:px-6">
@@ -69,9 +59,13 @@ const FAQs = ({ faqs }) => {
         </div>
 
         <div>
-          {data.map((faq, idx) => (
-            <FAQItem key={idx} faq={faq} />
-          ))}
+          {faqs.length > 0 ? (
+            faqs.map((faq) => <FAQItem key={faq._id} faq={faq} />)
+          ) : (
+            <div className="border-[3px] border-dashed border-ink bg-white p-12 text-center shadow-neo-sm">
+              <p className="text-lg font-medium text-ink/70">FAQs will appear here once added in the admin dashboard.</p>
+            </div>
+          )}
         </div>
       </div>
     </section>

@@ -3,7 +3,23 @@ import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import api from '../api';
 import { REGISTRATION_URL, normalizeRegistrationLink } from '../constants';
-import { LayoutDashboard, Calendar, Clock, HelpCircle, Image as ImageIcon, Layers, Settings, LogOut, Plus, Trash2, Save, ExternalLink, RefreshCw } from 'lucide-react';
+import {
+    LayoutDashboard,
+    Calendar,
+    Clock,
+    HelpCircle,
+    Image as ImageIcon,
+    Layers,
+    Settings,
+    LogOut,
+    Plus,
+    Trash2,
+    Save,
+    ExternalLink,
+    RefreshCw,
+    Pencil,
+} from 'lucide-react';
+import toast, { Toaster } from 'react-hot-toast';
 
 function formatHeroCarouselForEditor(carousel) {
   if (!carousel?.length) return '';
@@ -22,7 +38,6 @@ function parseHeroCarouselEditor(text) {
     })
     .filter((s) => s.url);
 }
-import toast, { Toaster } from 'react-hot-toast';
 
 const AdminDashboard = () => {
     const { admin, logout } = useAuth();
@@ -43,6 +58,12 @@ const AdminDashboard = () => {
     const [newFaq, setNewFaq] = useState({ question: '', answer: '' });
     const [newTrack, setNewTrack] = useState({ title: '', description: '', sortOrder: 0 });
     const [heroCarouselText, setHeroCarouselText] = useState('');
+    const [editingAgendaId, setEditingAgendaId] = useState(null);
+    const [agendaDraft, setAgendaDraft] = useState({ title: '', description: '', day: 1, phase: '' });
+    const [editingScheduleId, setEditingScheduleId] = useState(null);
+    const [scheduleDraft, setScheduleDraft] = useState({ time: '', activity: '', description: '', day: 1 });
+    const [editingFaqId, setEditingFaqId] = useState(null);
+    const [faqDraft, setFaqDraft] = useState({ question: '', answer: '' });
 
     useEffect(() => {
         if (!admin) {
@@ -111,6 +132,7 @@ const AdminDashboard = () => {
         try {
             await api.delete(`/agenda/${id}`);
             setAgendas(agendas.filter(a => a._id !== id));
+            if (editingAgendaId === id) setEditingAgendaId(null);
             toast.success('Agenda item removed');
         } catch (err) {
             toast.error('Failed to delete agenda item');
@@ -134,6 +156,7 @@ const AdminDashboard = () => {
         try {
             await api.delete(`/schedule/${id}`);
             setSchedules(schedules.filter(s => s._id !== id));
+            if (editingScheduleId === id) setEditingScheduleId(null);
             toast.success('Schedule item removed');
         } catch (err) {
             toast.error('Failed to delete schedule item');
@@ -157,9 +180,73 @@ const AdminDashboard = () => {
         try {
             await api.delete(`/faqs/${id}`);
             setFaqs(faqs.filter(f => f._id !== id));
+            if (editingFaqId === id) setEditingFaqId(null);
             toast.success('FAQ removed');
         } catch (err) {
             toast.error('Failed to delete FAQ');
+        }
+    };
+
+    const handleSaveAgendaEdit = async (e) => {
+        e.preventDefault();
+        if (!editingAgendaId) return;
+        try {
+            const payload = {
+                title: agendaDraft.title,
+                description: agendaDraft.description,
+                phase: agendaDraft.phase,
+                day: Number(agendaDraft.day) || 1,
+            };
+            const { data } = await api.put(`/agenda/${editingAgendaId}`, payload);
+            setAgendas(
+                agendas.map((x) => (x._id === data._id ? data : x)).sort((a, b) => (a.day || 0) - (b.day || 0))
+            );
+            setEditingAgendaId(null);
+            toast.success('Agenda updated');
+        } catch (err) {
+            toast.error('Failed to update agenda');
+        }
+    };
+
+    const handleSaveScheduleEdit = async (e) => {
+        e.preventDefault();
+        if (!editingScheduleId) return;
+        try {
+            const payload = {
+                time: scheduleDraft.time,
+                activity: scheduleDraft.activity,
+                description: scheduleDraft.description || '',
+                day: Number(scheduleDraft.day) || 1,
+            };
+            const { data } = await api.put(`/schedule/${editingScheduleId}`, payload);
+            setSchedules(
+                schedules
+                    .map((x) => (x._id === data._id ? data : x))
+                    .sort(
+                        (a, b) =>
+                            (a.day || 0) - (b.day || 0) || String(a.time || '').localeCompare(String(b.time || ''))
+                    )
+            );
+            setEditingScheduleId(null);
+            toast.success('Schedule updated');
+        } catch (err) {
+            toast.error('Failed to update schedule');
+        }
+    };
+
+    const handleSaveFaqEdit = async (e) => {
+        e.preventDefault();
+        if (!editingFaqId) return;
+        try {
+            const { data } = await api.put(`/faqs/${editingFaqId}`, {
+                question: faqDraft.question,
+                answer: faqDraft.answer,
+            });
+            setFaqs(faqs.map((x) => (x._id === data._id ? data : x)));
+            setEditingFaqId(null);
+            toast.success('FAQ updated');
+        } catch (err) {
+            toast.error('Failed to update FAQ');
         }
     };
 
@@ -473,18 +560,62 @@ const AdminDashboard = () => {
                        <h3 className="text-2xl font-heading border-l-4 border-ink pl-4 uppercase tracking-wide">Existing agenda items</h3>
                        <div className="grid lg:grid-cols-2 gap-6">
                           {agendas.map((a) => (
-                             <div key={a._id} className="bg-white border-[3px] border-ink shadow-neo p-8 rounded-neo group flex justify-between items-start gap-4">
-                                <div>
-                                   <div className="flex flex-wrap items-center gap-3 mb-2">
-                                      <span className="px-3 py-1 bg-highlight-yellow border-2 border-ink text-[10px] font-black uppercase tracking-[0.2em] text-ink shadow-neo-sm">Day {a.day}</span>
-                                      <h4 className="text-xl font-bold font-sans normal-case tracking-normal">{a.title}</h4>
-                                   </div>
-                                   <p className="text-ink/70 text-sm leading-relaxed mb-4">{a.description}</p>
-                                   <span className="text-xs font-black uppercase tracking-widest text-ink/50">{a.phase}</span>
-                                </div>
-                                <button type="button" onClick={() => handleDeleteAgenda(a._id)} className="p-2 text-ink/50 hover:text-red-600 transition-colors border-2 border-transparent hover:border-red-200 shrink-0">
-                                   <Trash2 size={20} />
-                                </button>
+                             <div key={a._id} className="bg-white border-[3px] border-ink shadow-neo p-8 rounded-neo group flex flex-col gap-4">
+                                {editingAgendaId === a._id ? (
+                                  <form onSubmit={handleSaveAgendaEdit} className="space-y-4 w-full">
+                                    <div className="grid sm:grid-cols-3 gap-4">
+                                      <div className="space-y-1 sm:col-span-2">
+                                        <label className="text-[10px] font-black uppercase tracking-widest text-ink/50">Title</label>
+                                        <input required value={agendaDraft.title} onChange={(e) => setAgendaDraft({ ...agendaDraft, title: e.target.value })} className="w-full bg-bg border-2 border-ink rounded-lg p-3 text-ink font-medium" />
+                                      </div>
+                                      <div className="space-y-1">
+                                        <label className="text-[10px] font-black uppercase tracking-widest text-ink/50">Day</label>
+                                        <input type="number" required value={agendaDraft.day} onChange={(e) => setAgendaDraft({ ...agendaDraft, day: e.target.value })} className="w-full bg-bg border-2 border-ink rounded-lg p-3 text-ink font-medium" />
+                                      </div>
+                                    </div>
+                                    <div className="space-y-1">
+                                      <label className="text-[10px] font-black uppercase tracking-widest text-ink/50">Phase</label>
+                                      <input required value={agendaDraft.phase} onChange={(e) => setAgendaDraft({ ...agendaDraft, phase: e.target.value })} className="w-full bg-bg border-2 border-ink rounded-lg p-3 text-ink font-medium" />
+                                    </div>
+                                    <div className="space-y-1">
+                                      <label className="text-[10px] font-black uppercase tracking-widest text-ink/50">Description</label>
+                                      <textarea required rows={3} value={agendaDraft.description} onChange={(e) => setAgendaDraft({ ...agendaDraft, description: e.target.value })} className="w-full bg-bg border-2 border-ink rounded-lg p-3 text-ink font-medium" />
+                                    </div>
+                                    <div className="flex flex-wrap gap-2 pt-2">
+                                      <button type="submit" className="btn-ink !py-2 px-4 text-xs font-bold uppercase tracking-widest border-2">Save</button>
+                                      <button type="button" onClick={() => setEditingAgendaId(null)} className="border-2 border-ink bg-white px-4 py-2 text-xs font-bold uppercase shadow-neo-sm">Cancel</button>
+                                    </div>
+                                  </form>
+                                ) : (
+                                  <>
+                                    <div className="flex justify-between items-start gap-4 w-full">
+                                      <div>
+                                        <div className="flex flex-wrap items-center gap-3 mb-2">
+                                          <span className="px-3 py-1 bg-highlight-yellow border-2 border-ink text-[10px] font-black uppercase tracking-[0.2em] text-ink shadow-neo-sm">Day {a.day}</span>
+                                          <h4 className="text-xl font-bold font-sans normal-case tracking-normal">{a.title}</h4>
+                                        </div>
+                                        <p className="text-ink/70 text-sm leading-relaxed mb-4">{a.description}</p>
+                                        <span className="text-xs font-black uppercase tracking-widest text-ink/50">{a.phase}</span>
+                                      </div>
+                                      <div className="flex shrink-0 gap-1">
+                                        <button
+                                          type="button"
+                                          onClick={() => {
+                                            setEditingAgendaId(a._id);
+                                            setAgendaDraft({ title: a.title, description: a.description, day: a.day, phase: a.phase });
+                                          }}
+                                          className="p-2 text-ink hover:bg-highlight-teal/30 border-2 border-transparent hover:border-ink"
+                                          aria-label="Edit agenda"
+                                        >
+                                          <Pencil size={18} />
+                                        </button>
+                                        <button type="button" onClick={() => handleDeleteAgenda(a._id)} className="p-2 text-ink/50 hover:text-red-600 border-2 border-transparent hover:border-red-200">
+                                          <Trash2 size={20} />
+                                        </button>
+                                      </div>
+                                    </div>
+                                  </>
+                                )}
                              </div>
                           ))}
                           {agendas.length === 0 && <p className="text-ink/50 italic">No agenda items yet.</p>}
@@ -529,22 +660,67 @@ const AdminDashboard = () => {
                        <h3 className="text-2xl font-heading border-l-4 border-ink pl-4 uppercase tracking-wide">Live timeline</h3>
                        <div className="space-y-4">
                           {schedules.map((s) => (
-                             <div key={s._id} className="bg-white border-[3px] border-ink shadow-neo p-6 rounded-neo flex flex-col sm:flex-row sm:items-center justify-between gap-4 group">
-                                <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-8 min-w-0">
-                                   <div className="text-ink font-black text-lg sm:w-28 border-b-2 sm:border-b-0 sm:border-r-2 border-ink/15 sm:pr-4 shrink-0 uppercase tracking-tighter">
-                                      {s.time}
-                                   </div>
-                                   <div className="min-w-0">
-                                      <h4 className="text-xl font-bold mb-1 tracking-tight font-sans normal-case">{s.activity}</h4>
-                                      <p className="text-ink/65 text-sm">{s.description}</p>
-                                   </div>
-                                </div>
-                                <div className="flex items-center gap-4 shrink-0">
-                                   <span className="text-[10px] font-black uppercase tracking-widest text-ink bg-highlight-teal border-2 border-ink px-3 py-1 shadow-neo-sm">Day {s.day}</span>
-                                   <button type="button" onClick={() => handleDeleteSchedule(s._id)} className="p-2 text-ink/50 hover:text-red-600 border-2 border-transparent hover:border-red-200 transition-colors">
-                                      <Trash2 size={20} />
-                                   </button>
-                                </div>
+                             <div key={s._id} className="bg-white border-[3px] border-ink shadow-neo p-6 rounded-neo flex flex-col gap-4 group">
+                                {editingScheduleId === s._id ? (
+                                  <form onSubmit={handleSaveScheduleEdit} className="space-y-4 w-full">
+                                    <div className="grid sm:grid-cols-2 gap-4">
+                                      <div className="space-y-1">
+                                        <label className="text-[10px] font-black uppercase tracking-widest text-ink/50">Time</label>
+                                        <input required value={scheduleDraft.time} onChange={(e) => setScheduleDraft({ ...scheduleDraft, time: e.target.value })} className="w-full bg-bg border-2 border-ink rounded-lg p-3 text-ink font-medium" />
+                                      </div>
+                                      <div className="space-y-1">
+                                        <label className="text-[10px] font-black uppercase tracking-widest text-ink/50">Day</label>
+                                        <input type="number" required value={scheduleDraft.day} onChange={(e) => setScheduleDraft({ ...scheduleDraft, day: e.target.value })} className="w-full bg-bg border-2 border-ink rounded-lg p-3 text-ink font-medium" />
+                                      </div>
+                                    </div>
+                                    <div className="space-y-1">
+                                      <label className="text-[10px] font-black uppercase tracking-widest text-ink/50">Activity</label>
+                                      <input required value={scheduleDraft.activity} onChange={(e) => setScheduleDraft({ ...scheduleDraft, activity: e.target.value })} className="w-full bg-bg border-2 border-ink rounded-lg p-3 text-ink font-medium" />
+                                    </div>
+                                    <div className="space-y-1">
+                                      <label className="text-[10px] font-black uppercase tracking-widest text-ink/50">Context</label>
+                                      <input value={scheduleDraft.description} onChange={(e) => setScheduleDraft({ ...scheduleDraft, description: e.target.value })} className="w-full bg-bg border-2 border-ink rounded-lg p-3 text-ink font-medium" />
+                                    </div>
+                                    <div className="flex flex-wrap gap-2">
+                                      <button type="submit" className="btn-ink !py-2 px-4 text-xs font-bold uppercase tracking-widest border-2">Save</button>
+                                      <button type="button" onClick={() => setEditingScheduleId(null)} className="border-2 border-ink bg-white px-4 py-2 text-xs font-bold uppercase shadow-neo-sm">Cancel</button>
+                                    </div>
+                                  </form>
+                                ) : (
+                                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 w-full">
+                                    <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-8 min-w-0">
+                                      <div className="text-ink font-black text-lg sm:w-28 border-b-2 sm:border-b-0 sm:border-r-2 border-ink/15 sm:pr-4 shrink-0 uppercase tracking-tighter">
+                                        {s.time}
+                                      </div>
+                                      <div className="min-w-0">
+                                        <h4 className="text-xl font-bold mb-1 tracking-tight font-sans normal-case">{s.activity}</h4>
+                                        <p className="text-ink/65 text-sm">{s.description}</p>
+                                      </div>
+                                    </div>
+                                    <div className="flex items-center gap-2 shrink-0">
+                                      <span className="text-[10px] font-black uppercase tracking-widest text-ink bg-highlight-teal border-2 border-ink px-3 py-1 shadow-neo-sm">Day {s.day}</span>
+                                      <button
+                                        type="button"
+                                        onClick={() => {
+                                          setEditingScheduleId(s._id);
+                                          setScheduleDraft({
+                                            time: s.time,
+                                            activity: s.activity,
+                                            description: s.description || '',
+                                            day: s.day,
+                                          });
+                                        }}
+                                        className="p-2 text-ink hover:bg-highlight-teal/30 border-2 border-transparent hover:border-ink"
+                                        aria-label="Edit schedule"
+                                      >
+                                        <Pencil size={18} />
+                                      </button>
+                                      <button type="button" onClick={() => handleDeleteSchedule(s._id)} className="p-2 text-ink/50 hover:text-red-600 border-2 border-transparent hover:border-red-200 transition-colors">
+                                        <Trash2 size={20} />
+                                      </button>
+                                    </div>
+                                  </div>
+                                )}
                              </div>
                           ))}
                           {schedules.length === 0 && <p className="text-ink/50 italic">No schedule entries yet.</p>}
@@ -580,15 +756,45 @@ const AdminDashboard = () => {
                        <div className="grid lg:grid-cols-2 gap-8">
                           {faqs.map((f) => (
                              <div key={f._id} className="bg-white border-[3px] border-ink shadow-neo p-8 rounded-neo flex flex-col justify-between h-full">
-                                <div>
-                                   <div className="flex items-start justify-between gap-4 mb-4">
+                                {editingFaqId === f._id ? (
+                                  <form onSubmit={handleSaveFaqEdit} className="space-y-4 w-full">
+                                    <div className="space-y-1">
+                                      <label className="text-[10px] font-black uppercase tracking-widest text-ink/50">Question</label>
+                                      <input required value={faqDraft.question} onChange={(e) => setFaqDraft({ ...faqDraft, question: e.target.value })} className="w-full bg-bg border-2 border-ink rounded-lg p-3 text-ink font-medium" />
+                                    </div>
+                                    <div className="space-y-1">
+                                      <label className="text-[10px] font-black uppercase tracking-widest text-ink/50">Answer</label>
+                                      <textarea required rows={4} value={faqDraft.answer} onChange={(e) => setFaqDraft({ ...faqDraft, answer: e.target.value })} className="w-full bg-bg border-2 border-ink rounded-lg p-3 text-ink font-medium leading-relaxed" />
+                                    </div>
+                                    <div className="flex flex-wrap gap-2 pt-2">
+                                      <button type="submit" className="btn-ink !py-2 px-4 text-xs font-bold uppercase tracking-widest border-2">Save</button>
+                                      <button type="button" onClick={() => setEditingFaqId(null)} className="border-2 border-ink bg-white px-4 py-2 text-xs font-bold uppercase shadow-neo-sm">Cancel</button>
+                                    </div>
+                                  </form>
+                                ) : (
+                                  <div>
+                                    <div className="flex items-start justify-between gap-4 mb-4">
                                       <h4 className="text-lg font-bold text-ink tracking-tight font-sans normal-case">{f.question}</h4>
-                                      <button type="button" onClick={() => handleDeleteFaq(f._id)} className="p-2 text-ink/50 hover:text-red-600 border-2 border-transparent hover:border-red-200 shrink-0">
-                                         <Trash2 size={20} />
-                                      </button>
-                                   </div>
-                                   <p className="text-ink/70 text-sm leading-relaxed">{f.answer}</p>
-                                </div>
+                                      <div className="flex shrink-0 gap-1">
+                                        <button
+                                          type="button"
+                                          onClick={() => {
+                                            setEditingFaqId(f._id);
+                                            setFaqDraft({ question: f.question, answer: f.answer });
+                                          }}
+                                          className="p-2 text-ink hover:bg-highlight-teal/30 border-2 border-transparent hover:border-ink"
+                                          aria-label="Edit FAQ"
+                                        >
+                                          <Pencil size={18} />
+                                        </button>
+                                        <button type="button" onClick={() => handleDeleteFaq(f._id)} className="p-2 text-ink/50 hover:text-red-600 border-2 border-transparent hover:border-red-200">
+                                          <Trash2 size={20} />
+                                        </button>
+                                      </div>
+                                    </div>
+                                    <p className="text-ink/70 text-sm leading-relaxed">{f.answer}</p>
+                                  </div>
+                                )}
                              </div>
                           ))}
                           {faqs.length === 0 && <p className="text-ink/50 italic">No FAQs yet.</p>}

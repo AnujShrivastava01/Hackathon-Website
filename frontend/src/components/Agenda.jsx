@@ -39,15 +39,7 @@ const AgendaCard = ({ agenda, idx }) => {
   );
 };
 
-const Agenda = ({ agendas }) => {
-  const defaultAgendas = [
-    { day: 1, title: 'Concept & ideation', phase: 'Pre-hack', description: 'Form teams, brainstorm, and define your MVP. Set up repos and environments.' },
-    { day: 2, title: 'Development sprint', phase: 'Execution', description: 'Core features, data modeling, and UI polish with mentor checkpoints.' },
-    { day: 3, title: 'Refine & finalize', phase: 'Polish', description: 'Debug, record demos, and prep submissions before the buzzer.' },
-  ];
-
-  const data = agendas && agendas.length > 0 ? agendas : defaultAgendas;
-
+const Agenda = ({ agendas = [] }) => {
   return (
     <section id="agenda" className="section-padding bg-bg border-t-4 border-ink">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -64,9 +56,15 @@ const Agenda = ({ agendas }) => {
         </div>
 
         <div className="grid lg:grid-cols-2 gap-8">
-          {data.map((item, idx) => (
-            <AgendaCard key={idx} agenda={item} idx={idx} />
-          ))}
+          {agendas.length > 0 ? (
+            agendas.map((item, idx) => (
+              <AgendaCard key={item._id || idx} agenda={item} idx={idx} />
+            ))
+          ) : (
+            <div className="neo-card border-[3px] border-dashed border-ink bg-white/80 p-12 text-center shadow-neo-sm lg:col-span-2">
+              <p className="text-lg font-medium text-ink/70">Agenda phases will appear here once added in the admin dashboard.</p>
+            </div>
+          )}
         </div>
       </div>
     </section>

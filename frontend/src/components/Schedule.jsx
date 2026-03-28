@@ -23,7 +23,7 @@ const ScheduleItem = ({ schedule, idx }) => (
           <span className="text-xs font-bold uppercase tracking-widest text-ink/70">{schedule.time}</span>
         </div>
         <h4 className="text-2xl font-heading text-ink mb-2 normal-case tracking-wide">{schedule.activity}</h4>
-        <p className="max-w-xl text-ink/80 text-base leading-relaxed font-medium">{schedule.description}</p>
+        <p className="max-w-xl text-ink/80 text-base leading-relaxed font-medium">{schedule.description || '—'}</p>
       </div>
 
       <div className="inline-flex items-center px-4 py-2 bg-highlight-teal border-2 border-ink shadow-neo-sm text-xs font-bold uppercase tracking-widest text-ink shrink-0 self-start md:self-center">
@@ -33,17 +33,7 @@ const ScheduleItem = ({ schedule, idx }) => (
   </motion.div>
 );
 
-const Schedule = ({ schedules }) => {
-  const defaultSchedules = [
-    { time: '09:00 AM', activity: 'Hackathon kick-off', description: 'Opening, rules, and challenge reveal. The clock starts.', day: 1 },
-    { time: '11:00 AM', activity: 'Team ideation & design', description: 'Roadmaps, sketches, and first commits with mentor office hours.', day: 1 },
-    { time: '01:00 PM', activity: 'Technical mentorship', description: 'Architecture reviews and debugging blocks with domain experts.', day: 1 },
-    { time: '02:00 PM', activity: 'Mid-hack check-in', description: 'Progress share, scope trimming, and early prototype feedback.', day: 2 },
-    { time: '08:00 PM', activity: 'Final submission', description: 'Repos tagged, demos recorded, and submissions locked.', day: 3 },
-  ];
-
-  const data = schedules && schedules.length > 0 ? schedules : defaultSchedules;
-
+const Schedule = ({ schedules = [] }) => {
   return (
     <section id="schedule" className="section-padding bg-white border-t-4 border-ink">
       <div className="max-w-4xl mx-auto px-4 sm:px-6">
@@ -54,9 +44,17 @@ const Schedule = ({ schedules }) => {
           <h2 className="text-4xl md:text-7xl font-heading text-ink">The schedule</h2>
         </div>
 
-        <div className="relative pl-2">{data.map((item, idx) => (
-          <ScheduleItem key={idx} schedule={item} idx={idx} />
-        ))}</div>
+        <div className="relative pl-2">
+          {schedules.length > 0 ? (
+            schedules.map((item, idx) => (
+              <ScheduleItem key={item._id || idx} schedule={item} idx={idx} />
+            ))
+          ) : (
+            <div className="neo-card border-[3px] border-dashed border-ink bg-bg p-12 text-center shadow-neo-sm">
+              <p className="text-lg font-medium text-ink/70">Schedule slots will appear here once added in the admin dashboard.</p>
+            </div>
+          )}
+        </div>
       </div>
     </section>
   );
