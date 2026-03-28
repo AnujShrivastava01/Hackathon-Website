@@ -1,5 +1,5 @@
 const express = require('express');
-const router = express.Namespace ? express.Namespace() : express.Router();
+const router = express.Router();
 const { loginAdmin, logoutAdmin, getMe } = require('./controllers/authController');
 const { getEvent, updateEvent } = require('./controllers/eventController');
 const { getAgenda, createAgenda, updateAgenda, deleteAgenda } = require('./controllers/agendaController');
