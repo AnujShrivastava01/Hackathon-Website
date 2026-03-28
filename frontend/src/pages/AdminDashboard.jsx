@@ -64,6 +64,8 @@ const AdminDashboard = () => {
     const [scheduleDraft, setScheduleDraft] = useState({ time: '', activity: '', description: '', day: 1 });
     const [editingFaqId, setEditingFaqId] = useState(null);
     const [faqDraft, setFaqDraft] = useState({ question: '', answer: '' });
+    const [editingTrackId, setEditingTrackId] = useState(null);
+    const [trackDraft, setTrackDraft] = useState({ title: '', description: '', sortOrder: 0 });
 
     useEffect(() => {
         if (!admin) {
@@ -129,6 +131,7 @@ const AdminDashboard = () => {
     };
 
     const handleDeleteAgenda = async (id) => {
+        if (!window.confirm('Delete this agenda item? This cannot be undone.')) return;
         try {
             await api.delete(`/agenda/${id}`);
             setAgendas(agendas.filter(a => a._id !== id));
@@ -153,6 +156,7 @@ const AdminDashboard = () => {
     };
 
     const handleDeleteSchedule = async (id) => {
+        if (!window.confirm('Delete this schedule slot? This cannot be undone.')) return;
         try {
             await api.delete(`/schedule/${id}`);
             setSchedules(schedules.filter(s => s._id !== id));
@@ -177,6 +181,7 @@ const AdminDashboard = () => {
     };
 
     const handleDeleteFaq = async (id) => {
+        if (!window.confirm('Delete this FAQ? This cannot be undone.')) return;
         try {
             await api.delete(`/faqs/${id}`);
             setFaqs(faqs.filter(f => f._id !== id));
@@ -266,12 +271,34 @@ const AdminDashboard = () => {
     };
 
     const handleDeleteTrack = async (id) => {
+        if (!window.confirm('Delete this track? This cannot be undone.')) return;
         try {
             await api.delete(`/tracks/${id}`);
             setTracks(tracks.filter((t) => t._id !== id));
+            if (editingTrackId === id) setEditingTrackId(null);
             toast.success('Track removed');
         } catch (err) {
             toast.error('Failed to delete track');
+        }
+    };
+
+    const handleSaveTrackEdit = async (e) => {
+        e.preventDefault();
+        if (!editingTrackId) return;
+        try {
+            const payload = {
+                title: trackDraft.title,
+                description: trackDraft.description,
+                sortOrder: Number(trackDraft.sortOrder) || 0,
+            };
+            const { data } = await api.put(`/tracks/${editingTrackId}`, payload);
+            setTracks(
+                tracks.map((x) => (x._id === data._id ? data : x)).sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0))
+            );
+            setEditingTrackId(null);
+            toast.success('Track updated');
+        } catch (err) {
+            toast.error('Failed to update track');
         }
     };
 
@@ -498,26 +525,90 @@ const AdminDashboard = () => {
                       <h3 className="text-2xl font-heading border-l-4 border-ink pl-4 uppercase tracking-wide">Published tracks</h3>
                       <div className="grid lg:grid-cols-2 gap-6">
                         {tracks.map((t) => (
-                          <div
-                            key={t._id}
-                            className="bg-white border-[3px] border-ink shadow-neo p-8 rounded-neo group flex justify-between items-start gap-4"
-                          >
-                            <div>
-                              <div className="flex flex-wrap items-center gap-3 mb-2">
-                                <span className="px-3 py-1 bg-highlight-blue border-2 border-ink text-[10px] font-black uppercase tracking-[0.2em] text-ink shadow-neo-sm">
-                                  Order {t.sortOrder ?? 0}
-                                </span>
-                                <h4 className="text-xl font-bold font-sans normal-case tracking-normal">{t.title}</h4>
+                          <div key={t._id} className="bg-white border-[3px] border-ink shadow-neo p-8 rounded-neo group flex flex-col gap-4">
+                            {editingTrackId === t._id ? (
+                              <form onSubmit={handleSaveTrackEdit} className="space-y-4 w-full">
+                                <div className="grid sm:grid-cols-2 gap-4">
+                                  <div className="space-y-1 sm:col-span-2">
+                                    <label className="text-[10px] font-black uppercase tracking-widest text-ink/50">Title</label>
+                                    <input
+                                      required
+                                      value={trackDraft.title}
+                                      onChange={(e) => setTrackDraft({ ...trackDraft, title: e.target.value })}
+                                      className="w-full bg-bg border-2 border-ink rounded-lg p-3 text-ink font-medium"
+                                    />
+                                  </div>
+                                  <div className="space-y-1">
+                                    <label className="text-[10px] font-black uppercase tracking-widest text-ink/50">Display order</label>
+                                    <input
+                                      type="number"
+                                      value={trackDraft.sortOrder}
+                                      onChange={(e) => setTrackDraft({ ...trackDraft, sortOrder: e.target.value })}
+                                      className="w-full bg-bg border-2 border-ink rounded-lg p-3 text-ink font-medium"
+                                    />
+                                  </div>
+                                </div>
+                                <div className="space-y-1">
+                                  <label className="text-[10px] font-black uppercase tracking-widest text-ink/50">Description</label>
+                                  <textarea
+                                    required
+                                    rows={4}
+                                    value={trackDraft.description}
+                                    onChange={(e) => setTrackDraft({ ...trackDraft, description: e.target.value })}
+                                    className="w-full bg-bg border-2 border-ink rounded-lg p-3 text-ink font-medium leading-relaxed"
+                                  />
+                                </div>
+                                <div className="flex flex-wrap gap-2 pt-2">
+                                  <button type="submit" className="btn-ink !py-2 px-4 text-xs font-bold uppercase tracking-widest border-2">
+                                    Save
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => setEditingTrackId(null)}
+                                    className="border-2 border-ink bg-white px-4 py-2 text-xs font-bold uppercase shadow-neo-sm"
+                                  >
+                                    Cancel
+                                  </button>
+                                </div>
+                              </form>
+                            ) : (
+                              <div className="flex justify-between items-start gap-4 w-full">
+                                <div>
+                                  <div className="flex flex-wrap items-center gap-3 mb-2">
+                                    <span className="px-3 py-1 bg-highlight-blue border-2 border-ink text-[10px] font-black uppercase tracking-[0.2em] text-ink shadow-neo-sm">
+                                      Order {t.sortOrder ?? 0}
+                                    </span>
+                                    <h4 className="text-xl font-bold font-sans normal-case tracking-normal">{t.title}</h4>
+                                  </div>
+                                  <p className="text-ink/70 text-sm leading-relaxed">{t.description}</p>
+                                </div>
+                                <div className="flex shrink-0 gap-1">
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      setEditingTrackId(t._id);
+                                      setTrackDraft({
+                                        title: t.title,
+                                        description: t.description,
+                                        sortOrder: t.sortOrder ?? 0,
+                                      });
+                                    }}
+                                    className="p-2 text-ink hover:bg-highlight-teal/30 border-2 border-transparent hover:border-ink"
+                                    aria-label="Edit track"
+                                  >
+                                    <Pencil size={18} />
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => handleDeleteTrack(t._id)}
+                                    className="p-2 text-ink/50 hover:text-red-600 transition-colors border-2 border-transparent hover:border-red-200"
+                                    aria-label="Delete track"
+                                  >
+                                    <Trash2 size={20} />
+                                  </button>
+                                </div>
                               </div>
-                              <p className="text-ink/70 text-sm leading-relaxed">{t.description}</p>
-                            </div>
-                            <button
-                              type="button"
-                              onClick={() => handleDeleteTrack(t._id)}
-                              className="p-2 text-ink/50 hover:text-red-600 transition-colors border-2 border-transparent hover:border-red-200 shrink-0"
-                            >
-                              <Trash2 size={20} />
-                            </button>
+                            )}
                           </div>
                         ))}
                         {tracks.length === 0 && <p className="text-ink/50 italic">No tracks yet — add one above for the landing page.</p>}
