@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Menu, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { REGISTRATION_URL } from '../constants';
+import { resolveRegistrationHref } from '../constants';
 
 const BRAND = 'HackOcean';
 
-const Navbar = () => {
-  const registerHref = REGISTRATION_URL;
+const Navbar = ({ event }) => {
+  const registerHref = resolveRegistrationHref(event);
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const logoTitle = BRAND;

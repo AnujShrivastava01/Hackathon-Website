@@ -3,7 +3,25 @@ import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import api from '../api';
 import { REGISTRATION_URL } from '../constants';
-import { LayoutDashboard, Calendar, Clock, HelpCircle, Layers, Settings, LogOut, Plus, Trash2, Save, ExternalLink, RefreshCw } from 'lucide-react';
+import { LayoutDashboard, Calendar, Clock, HelpCircle, Image as ImageIcon, Layers, Settings, LogOut, Plus, Trash2, Save, ExternalLink, RefreshCw } from 'lucide-react';
+
+function formatHeroCarouselForEditor(carousel) {
+  if (!carousel?.length) return '';
+  return carousel.map((item) => (item.caption ? `${item.url}|${item.caption}` : item.url)).join('\n');
+}
+
+function parseHeroCarouselEditor(text) {
+  return text
+    .split('\n')
+    .map((l) => l.trim())
+    .filter(Boolean)
+    .map((line) => {
+      const pipe = line.indexOf('|');
+      if (pipe === -1) return { url: line, caption: '' };
+      return { url: line.slice(0, pipe).trim(), caption: line.slice(pipe + 1).trim() };
+    })
+    .filter((s) => s.url);
+}
 import toast, { Toaster } from 'react-hot-toast';
 
 const AdminDashboard = () => {
@@ -24,6 +42,7 @@ const AdminDashboard = () => {
     const [newSchedule, setNewSchedule] = useState({ time: '', activity: '', description: '', day: 1 });
     const [newFaq, setNewFaq] = useState({ question: '', answer: '' });
     const [newTrack, setNewTrack] = useState({ title: '', description: '', sortOrder: 0 });
+    const [heroCarouselText, setHeroCarouselText] = useState('');
 
     useEffect(() => {
         if (!admin) {
@@ -43,7 +62,9 @@ const AdminDashboard = () => {
                 api.get('/faqs').catch(() => ({ data: [] })),
                 api.get('/tracks').catch(() => ({ data: [] }))
             ]);
-            setEvent(eRes.data || { name: '', description: '', venue: '', contactEmail: '', contactPhone: '', registrationLink: '' });
+            const ev = eRes.data || { name: '', description: '', venue: '', contactEmail: '', contactPhone: '', registrationLink: '' };
+            setEvent(ev);
+            setHeroCarouselText(formatHeroCarouselForEditor(ev.heroCarousel));
             setAgendas(aRes.data);
             setSchedules(sRes.data);
             setFaqs(fRes.data);
@@ -61,7 +82,11 @@ const AdminDashboard = () => {
     const handleEventUpdate = async (e) => {
         e.preventDefault();
         try {
-            await api.put('/event', event);
+            const heroCarousel = parseHeroCarouselEditor(heroCarouselText);
+            const payload = { ...event, heroCarousel };
+            const { data } = await api.put('/event', payload);
+            setEvent(data);
+            setHeroCarouselText(formatHeroCarouselForEditor(data.heroCarousel));
             toast.success('Event details updated successfully');
         } catch (err) {
             toast.error('Failed to update event details');
@@ -298,6 +323,22 @@ const AdminDashboard = () => {
                     <div className="bg-white border-[3px] border-ink shadow-neo p-8 rounded-neo space-y-2">
                        <label className="text-xs font-black uppercase tracking-widest text-ink/60 ml-1">Hackathon description</label>
                        <textarea rows="4" value={event.description} onChange={(e) => setEvent({...event, description: e.target.value})} className="w-full bg-bg border-2 border-ink rounded-xl p-4 focus:ring-2 focus:ring-ink/20 text-ink leading-relaxed font-medium shadow-neo-sm" />
+                    </div>
+
+                    <div className="bg-white border-[3px] border-ink shadow-neo p-8 rounded-neo space-y-3">
+                      <h3 className="text-xl font-bold flex items-center gap-2 text-ink border-b-2 border-ink/15 pb-4 font-sans normal-case tracking-normal">
+                        <ImageIcon size={18} /> <span>Hero image carousel</span>
+                      </h3>
+                      <p className="text-sm text-ink/70 font-medium leading-relaxed">
+                        One image URL per line. Optional caption after a pipe: <code className="bg-bg px-1 border border-ink/30 rounded text-xs">https://…|My caption</code>
+                      </p>
+                      <textarea
+                        rows={8}
+                        value={heroCarouselText}
+                        onChange={(e) => setHeroCarouselText(e.target.value)}
+                        placeholder="https://example.com/photo1.jpg&#10;https://example.com/photo2.jpg|Kickoff night"
+                        className="w-full bg-bg border-2 border-ink rounded-xl p-4 focus:ring-2 focus:ring-ink/20 text-ink text-sm font-mono leading-relaxed shadow-neo-sm"
+                      />
                     </div>
 
                     <div className="flex justify-end pt-4">

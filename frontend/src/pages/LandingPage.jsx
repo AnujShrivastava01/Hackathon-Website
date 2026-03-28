@@ -70,7 +70,7 @@ const LandingPage = () => {
           },
         }}
       />
-      <Navbar />
+      <Navbar event={event} />
       <Hero event={event} />
       <About event={event} tracks={tracks} />
       <Agenda agendas={agendas} />

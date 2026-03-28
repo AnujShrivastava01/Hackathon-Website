@@ -7,6 +7,12 @@ const eventSchema = new mongoose.Schema({
   contactEmail: { type: String, required: true },
   contactPhone: { type: String },
   registrationLink: { type: String, default: "https://forms.gle/hnMMFzu25AyTywS49" },
+  heroCarousel: [
+    {
+      url: { type: String, required: true },
+      caption: { type: String, default: '' },
+    },
+  ],
   socialLinks: {
     twitter: String,
     linkedin: String,

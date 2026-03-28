@@ -1,13 +1,5 @@
 import React from 'react';
-import {
-  Globe,
-  Brain,
-  Smartphone,
-  Landmark,
-  Leaf,
-  Sparkles,
-  Trophy,
-} from 'lucide-react';
+import { Globe, Brain, Smartphone, Landmark, Leaf, Sparkles } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { PRIZE_TIERS } from '../constants';
 
@@ -39,6 +31,45 @@ const prizeAccent = [
   'bg-highlight-teal border-ink',
   'bg-highlight-pink border-ink',
 ];
+
+const PRIZE_MEDAL_VARIANTS = ['gold', 'silver', 'bronze'];
+
+/** Flat, thick-outline medals for neo-brutalist prize cards */
+const NeoPrizeMedal = ({ variant, className = 'h-9 w-9' }) => {
+  const p = {
+    gold: { disk: '#FACC15', inner: '#EAB308', ribbon: '#FDE047' },
+    silver: { disk: '#E5E5E5', inner: '#A3A3A3', ribbon: '#F5F5F5' },
+    bronze: { disk: '#EA580C', inner: '#B45309', ribbon: '#FDBA74' },
+  }[variant] || { disk: '#FACC15', inner: '#EAB308', ribbon: '#FDE047' };
+
+  return (
+    <svg viewBox="0 0 48 56" className={className} aria-hidden>
+      <path
+        d="M11 1 17 18 6 22z"
+        fill={p.ribbon}
+        stroke="#1A1A1A"
+        strokeWidth="2"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M37 1 31 18 42 22z"
+        fill={p.ribbon}
+        stroke="#1A1A1A"
+        strokeWidth="2"
+        strokeLinejoin="round"
+      />
+      <circle cx="24" cy="34" r="14.5" fill={p.disk} stroke="#1A1A1A" strokeWidth="2.2" />
+      <circle cx="24" cy="34" r="9.5" fill={p.inner} stroke="#1A1A1A" strokeWidth="1.8" />
+      <path
+        d="m24 25 2 6 6.2.2-4.8 3.7 1.8 6-5.2-3.6L18 41l1.8-6-4.8-3.7 6.2-.2z"
+        fill="#FFFDF5"
+        stroke="#1A1A1A"
+        strokeWidth="1.2"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+};
 
 const TrackCard = ({ title, description, delay, frameIdx, iconIdx, index, layoutClass, featured }) => {
   const Icon = TRACK_ICONS[iconIdx % TRACK_ICONS.length];
@@ -185,8 +216,8 @@ const About = ({ event, tracks = [] }) => {
                 transition={{ delay: idx * 0.1, duration: 0.4 }}
                 className={`neo-card flex flex-col border-[3px] p-8 ${prizeAccent[idx % prizeAccent.length]}`}
               >
-                <div className="mb-6 flex h-14 w-14 items-center justify-center border-2 border-ink bg-white shadow-neo-sm">
-                  <Trophy className="h-8 w-8 text-ink" strokeWidth={2.2} />
+                <div className="mb-6 flex h-16 w-16 items-center justify-center border-2 border-ink bg-white shadow-neo-sm">
+                  <NeoPrizeMedal variant={PRIZE_MEDAL_VARIANTS[idx] || 'gold'} className="h-11 w-11" />
                 </div>
                 <p className="mb-1 text-xs font-black uppercase tracking-[0.25em] text-ink/70">{tier.label}</p>
                 <p className="mb-4 text-sm font-bold uppercase tracking-widest text-ink">{tier.place} place</p>
