@@ -1,94 +1,102 @@
 import React from 'react';
 import { Mail, Phone, MapPin, ArrowRight } from 'lucide-react';
 import { FaTwitter, FaLinkedin, FaGithub, FaInstagram } from 'react-icons/fa';
-import { motion } from 'framer-motion';
+
+const BRAND = 'HackOcean';
 
 const ContactInfo = ({ icon: Icon, label, value }) => (
-  <div className="flex items-center space-x-4 mb-8">
-    <div className="w-12 h-12 bg-primary-500/10 rounded-xl flex items-center justify-center border border-white/10 group-hover:bg-primary-500/20 transition-smooth">
-      <Icon className="text-primary-400 w-6 h-6" />
+  <div className="flex items-start gap-4 mb-8">
+    <div className="w-12 h-12 bg-accent border-2 border-ink shadow-neo-sm flex items-center justify-center shrink-0">
+      <Icon className="text-ink w-6 h-6" strokeWidth={2.2} />
     </div>
-    <div className="flex flex-col">
-       <span className="text-xs font-bold uppercase tracking-widest text-slate-500 mb-1">{label}</span>
-       <span className="text-xl font-bold text-white group-hover:text-primary-400 transition-colors uppercase">{value}</span>
+    <div>
+      <span className="text-xs font-bold uppercase tracking-widest text-ink/60 block mb-1">{label}</span>
+      <span className="text-xl font-bold text-ink uppercase">{value}</span>
     </div>
   </div>
 );
 
 const Contact = ({ event }) => {
   const socialLinks = [
-    { icon: FaTwitter, href: event?.socialLinks?.twitter || '#' },
-    { icon: FaLinkedin, href: event?.socialLinks?.linkedin || '#' },
-    { icon: FaGithub, href: event?.socialLinks?.github || '#' },
-    { icon: FaInstagram, href: event?.socialLinks?.instagram || '#' },
+    { icon: FaTwitter, href: event?.socialLinks?.twitter || '#', bg: 'bg-ink' },
+    { icon: FaLinkedin, href: event?.socialLinks?.linkedin || '#', bg: 'bg-highlight-blue' },
+    { icon: FaGithub, href: event?.socialLinks?.github || '#', bg: 'bg-highlight-purple' },
+    { icon: FaInstagram, href: event?.socialLinks?.instagram || '#', bg: 'bg-highlight-pink' },
   ];
 
   return (
-    <section id="contact" className="py-32 bg-slate-950 relative overflow-hidden">
-       {/* Visual Accent */}
-       <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
+    <section id="contact" className="section-padding bg-white border-t-4 border-ink relative overflow-hidden">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="grid lg:grid-cols-2 gap-16">
+          <div>
+            <span className="inline-block px-3 py-1 text-xs font-bold uppercase tracking-[0.35em] bg-highlight-teal border-2 border-ink shadow-neo-sm mb-4">
+              Reach out
+            </span>
+            <h2 className="text-4xl md:text-7xl font-heading text-ink mb-12">Contact</h2>
 
-       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid lg:grid-cols-2 gap-20">
-             
-             <div className="flex flex-col">
-                <span className="text-xs font-bold tracking-[0.4em] uppercase text-primary-500 mb-4 block">Get In Touch</span>
-                <h2 className="text-4xl md:text-7xl font-black text-white tracking-tighter mb-12">Contact Us.</h2>
-                
-                <ContactInfo icon={Mail} label="Email Address" value={event?.contactEmail || 'hackathon@example.com'} />
-                <ContactInfo icon={Phone} label="Contact Phone" value={event?.contactPhone || '+1 (555) 000-0000'} />
-                <ContactInfo icon={MapPin} label="Event Venue" value={event?.venue || 'Silicon Valley, CA'} />
+            <ContactInfo icon={Mail} label="Email" value={event?.contactEmail || 'hello@hackocean.dev'} />
+            <ContactInfo icon={Phone} label="Phone" value={event?.contactPhone || '+1 (555) 000-0000'} />
+            <ContactInfo icon={MapPin} label="Venue" value={event?.venue || 'TBA — we will sticker the map here'} />
 
-                <div className="flex items-center space-x-6 mt-12 mb-12 md:mb-0">
-                   {socialLinks.map((social, idx) => (
-                     <a 
-                       key={idx} 
-                       href={social.href} 
-                       target="_blank" 
-                       rel="noopener noreferrer"
-                       className="w-12 h-12 rounded-full border border-white/10 flex items-center justify-center text-slate-400 hover:bg-primary-500 hover:text-white hover:border-primary-500 transition-all transform hover:scale-110 active:scale-95 duration-200"
-                     >
-                       <social.icon size={20} />
-                     </a>
-                   ))}
-                </div>
-             </div>
-
-             <div className="bg-slate-900 border border-white/10 p-12 rounded-3xl relative overflow-hidden group">
-                {/* Visual Glass Effect Background */}
-                <div className="absolute inset-0 z-0 bg-primary-500/5 blur-[80px] -right-20 -bottom-20 pointer-events-none"></div>
-                
-                <div className="relative z-10 flex flex-col h-full items-center justify-center text-center">
-                    <div className="flex -space-x-4 mb-8">
-                       {[1,2,3,4].map((i) => (
-                         <div key={i} className="w-16 h-16 rounded-full border-4 border-slate-900 bg-slate-800 overflow-hidden shadow-xl ring-2 ring-primary-500/20">
-                            <img src={`https://i.pravatar.cc/150?u=${i*100}`} alt="Hacker" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
-                         </div>
-                       ))}
-                       <div className="w-16 h-16 rounded-full border-4 border-slate-900 bg-primary-500 flex items-center justify-center shadow-xl ring-2 ring-primary-500/20 text-white font-black text-sm">
-                          +50
-                       </div>
-                    </div>
-
-                    <h3 className="text-3xl md:text-5xl font-black text-white mb-6 leading-tight tracking-tighter">Ready to Make Your Mark?</h3>
-                    <p className="text-slate-400 text-lg leading-relaxed mb-10 max-w-sm mx-auto">
-                       Join our community of over 500+ developers and start your journey today.
-                    </p>
-
-                    <a 
-                       href={event?.registrationLink} 
-                       target="_blank" 
-                       rel="noopener noreferrer"
-                       className="btn-primary w-full max-w-sm flex items-center justify-center space-x-3 !py-4"
-                    >
-                       <span>Register For Event</span>
-                       <ArrowRight size={20}/>
-                    </a>
-                </div>
-             </div>
-
+            <div className="flex flex-wrap gap-3 mt-10">
+              {socialLinks.map((social, idx) => (
+                <a
+                  key={idx}
+                  href={social.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={`w-12 h-12 ${social.bg} border-2 border-ink shadow-neo-sm flex items-center justify-center text-white hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5 transition-all`}
+                >
+                  <social.icon size={20} />
+                </a>
+              ))}
+            </div>
           </div>
-       </div>
+
+          <div className="neo-card p-10 md:p-12 border-[3px] bg-highlight-blue relative">
+            <div className="absolute -top-3 -left-3 px-3 py-1 bg-ink text-white text-[10px] font-bold uppercase tracking-widest border-2 border-ink shadow-neo-sm -rotate-2">
+              {BRAND}
+            </div>
+
+            <div className="flex flex-col items-center text-center pt-4">
+              <div className="flex -space-x-3 mb-8">
+                {[1, 2, 3, 4].map((i) => (
+                  <div
+                    key={i}
+                    className="w-14 h-14 rounded-full border-[3px] border-ink bg-white overflow-hidden shadow-neo-sm"
+                  >
+                    <img
+                      src={`https://i.pravatar.cc/150?u=${i * 100}`}
+                      alt=""
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                ))}
+                <div className="w-14 h-14 rounded-full border-[3px] border-ink bg-accent flex items-center justify-center shadow-neo-sm font-heading text-lg text-ink">
+                  +50
+                </div>
+              </div>
+
+              <h3 className="text-3xl md:text-4xl font-heading text-ink mb-4 normal-case tracking-wide">
+                Ready to ship?
+              </h3>
+              <p className="text-ink/85 text-lg font-medium mb-10 max-w-sm">
+                Grab a spot, bring your laptop, and make something you are proud to demo.
+              </p>
+
+              <a
+                href={event?.registrationLink || '#'}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn-ink w-full max-w-sm flex items-center justify-center gap-3 !py-4 rounded-none border-[3px]"
+              >
+                <span>Register for {event?.name || BRAND}</span>
+                <ArrowRight size={20} />
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
     </section>
   );
 };

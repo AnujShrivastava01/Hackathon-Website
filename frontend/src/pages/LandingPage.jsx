@@ -24,7 +24,7 @@ const LandingPage = () => {
           api.get('/event').catch(() => ({ data: null })),
           api.get('/agenda').catch(() => ({ data: [] })),
           api.get('/schedule').catch(() => ({ data: [] })),
-          api.get('/faqs').catch(() => ({ data: [] }))
+          api.get('/faqs').catch(() => ({ data: [] })),
         ]);
 
         setEvent(eventRes.data);
@@ -44,24 +44,37 @@ const LandingPage = () => {
 
   if (isLoading) {
     return (
-      <div className="h-screen w-full flex flex-col items-center justify-center bg-slate-950">
-        <div className="w-16 h-16 border-4 border-primary-500 border-t-transparent rounded-full animate-spin mb-4"></div>
-        <p className="text-white font-bold animate-pulse text-lg tracking-widest uppercase">Initializing Portal...</p>
+      <div className="neo-page h-screen w-full flex flex-col items-center justify-center">
+        <div
+          className="w-14 h-14 border-[3px] border-ink border-t-accent rounded-full animate-spin mb-4 shadow-neo-sm"
+          aria-hidden
+        />
+        <p className="text-ink font-bold uppercase tracking-[0.25em] text-sm">Loading HackOcean…</p>
       </div>
     );
   }
 
   return (
-    <div className="bg-slate-950 min-h-screen text-slate-100 selection:bg-primary-500/30 selection:text-primary-400">
-      <Toaster position="bottom-right" />
-      <Navbar event={event}/>
-      <Hero event={event}/>
-      <About event={event}/>
+    <div className="neo-page min-h-screen text-ink selection:bg-accent selection:text-ink">
+      <Toaster
+        position="bottom-right"
+        toastOptions={{
+          style: {
+            background: '#fff',
+            color: '#1A1A1A',
+            border: '3px solid #1A1A1A',
+            boxShadow: '4px 4px 0px 0px #1A1A1A',
+          },
+        }}
+      />
+      <Navbar event={event} />
+      <Hero event={event} />
+      <About event={event} />
       <Agenda agendas={agendas} />
       <Schedule schedules={schedules} />
       <FAQs faqs={faqs} />
-      <Contact event={event}/>
-      <Footer event={event}/>
+      <Contact event={event} />
+      <Footer event={event} />
     </div>
   );
 };

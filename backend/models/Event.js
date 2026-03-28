@@ -6,7 +6,7 @@ const eventSchema = new mongoose.Schema({
   venue: { type: String, required: true },
   contactEmail: { type: String, required: true },
   contactPhone: { type: String },
-  registrationLink: { type: String, default: "https://docs.google.com/forms/d/e/1FAIpQLSdO7N7vXy7v3z_XhA/viewform" },
+  registrationLink: { type: String, default: "https://forms.gle/hnMMFzu25AyTywS49" },
   socialLinks: {
     twitter: String,
     linkedin: String,

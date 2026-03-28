@@ -4,36 +4,265 @@
 
 @layer base {
   body {
-    @apply antialiased text-slate-100 bg-slate-950 font-sans;
+    @apply bg-bg text-ink antialiased font-sans;
+  }
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-heading uppercase tracking-wide leading-tight;
   }
 }
 
-:root {
-  --primary: #0ea5e9;
-  --primary-dark: #0284c7;
+/* Graph-paper grid (CID-cell style) */
+.neo-page {
+  background-color: #fdfbf0;
+  background-image:
+    linear-gradient(rgba(26, 26, 26, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(26, 26, 26, 0.06) 1px, transparent 1px);
+  background-size: 24px 24px;
 }
 
-body.light {
-  @apply text-slate-900 bg-slate-50;
+@layer components {
+  .section-padding {
+    @apply py-20 md:py-28;
+  }
+  .neo-card {
+    @apply bg-white border-2 lg:border-[3px] border-ink rounded-neo shadow-neo transition-all duration-200;
+  }
+  .neo-card:hover {
+    @apply shadow-none translate-x-1 translate-y-1;
+  }
+  .btn-neo {
+    @apply px-6 py-3 bg-accent border-2 border-ink rounded-full font-bold text-ink shadow-neo transition-all duration-200 inline-flex items-center justify-center gap-2 uppercase tracking-wide cursor-pointer select-none;
+  }
+  .btn-neo:hover {
+    @apply shadow-none translate-x-0.5 translate-y-0.5 bg-highlight-orange;
+  }
+  .btn-neo-secondary {
+    @apply px-6 py-3 bg-white border-2 border-ink rounded-full font-bold text-ink shadow-neo transition-all duration-200 inline-flex items-center justify-center gap-2 uppercase tracking-wide cursor-pointer select-none;
+  }
+  .btn-neo-secondary:hover {
+    @apply shadow-none translate-x-0.5 translate-y-0.5 bg-highlight-blue;
+  }
+  .btn-primary {
+    @apply px-6 py-3 bg-accent border-2 border-ink rounded-full font-bold text-ink shadow-neo transition-all duration-200 uppercase tracking-wide inline-flex items-center justify-center gap-2;
+  }
+  .btn-primary:hover {
+    @apply shadow-none translate-x-0.5 translate-y-0.5 bg-highlight-orange;
+  }
+  .btn-ink {
+    @apply px-6 py-3 bg-ink text-white border-2 border-ink font-bold shadow-neo transition-all duration-200 uppercase tracking-wide inline-flex items-center justify-center gap-2;
+  }
+  .btn-ink:hover {
+    @apply shadow-none translate-x-0.5 translate-y-0.5 opacity-90;
+  }
+  .btn-outline {
+    @apply px-6 py-3 bg-white text-ink border-2 border-ink font-bold shadow-neo transition-all duration-200 uppercase tracking-wide inline-flex items-center justify-center gap-2;
+  }
+  .btn-outline:hover {
+    @apply shadow-none translate-x-0.5 translate-y-0.5 bg-highlight-teal;
+  }
 }
 
-.glass {
-  @apply backdrop-blur-md bg-white/10 border border-white/20;
+::-webkit-scrollbar {
+  width: 12px;
+}
+::-webkit-scrollbar-track {
+  @apply bg-bg border-l-2 border-ink;
+}
+::-webkit-scrollbar-thumb {
+  @apply bg-ink rounded-full border-2 border-bg;
 }
 
-.glass-dark {
-  @apply backdrop-blur-md bg-black/40 border border-white/10;
-}
-
-.btn-primary {
-  @apply bg-primary-500 hover:bg-primary-600 text-white px-6 py-2 rounded-full font-medium transition-all transform hover:scale-105 active:scale-95;
-}
-
-.btn-outline {
-  @apply border border-white/20 hover:bg-white/10 text-white px-6 py-2 rounded-full font-medium transition-all transform hover:scale-105 active:scale-95;
-}
-
-/* Custom transitions and animations */
 .transition-smooth {
   @apply transition-all duration-300 ease-in-out;
+}
+
+/* Hero underwater band */
+.hero-bubble {
+  animation-name: hw-bubble-rise;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+@keyframes hw-bubble-rise {
+  0% {
+    transform: translate3d(0, 0, 0) scale(1);
+    opacity: 0.55;
+  }
+  100% {
+    transform: translate3d(0, -260px, 0) scale(0.35);
+    opacity: 0;
+  }
+}
+
+.hero-fish-ltr {
+  animation: hw-fish-ltr 17s ease-in-out infinite;
+}
+
+.hero-fish-ltr-slow {
+  animation: hw-fish-ltr 24s ease-in-out infinite;
+}
+
+@keyframes hw-fish-ltr {
+  0% {
+    transform: translate3d(-25vw, 6px, 0);
+  }
+  20% {
+    transform: translate3d(5vw, -8px, 0);
+  }
+  45% {
+    transform: translate3d(38vw, 4px, 0);
+  }
+  70% {
+    transform: translate3d(72vw, -6px, 0);
+  }
+  100% {
+    transform: translate3d(115vw, 5px, 0);
+  }
+}
+
+/* Faces left: flip SVG in JSX; wrapper only translates (swims toward decreasing X) */
+.hero-fish-swim-left {
+  animation: hw-fish-swim-left 19s ease-in-out infinite;
+}
+
+@keyframes hw-fish-swim-left {
+  0% {
+    transform: translate3d(118vw, 5px, 0);
+  }
+  22% {
+    transform: translate3d(78vw, -7px, 0);
+  }
+  45% {
+    transform: translate3d(42vw, 4px, 0);
+  }
+  70% {
+    transform: translate3d(6vw, -6px, 0);
+  }
+  100% {
+    transform: translate3d(-32vw, 5px, 0);
+  }
+}
+
+.hero-seaweed {
+  transform-origin: bottom center;
+  animation: hw-seaweed-sway 3.8s ease-in-out infinite alternate;
+}
+
+.hero-tube {
+  transform-origin: bottom center;
+  animation: hw-tube-sway 4.2s ease-in-out infinite alternate;
+}
+
+@keyframes hw-seaweed-sway {
+  from {
+    transform: rotate(-5deg);
+  }
+  to {
+    transform: rotate(6deg);
+  }
+}
+
+@keyframes hw-tube-sway {
+  from {
+    transform: rotate(-2.5deg);
+  }
+  to {
+    transform: rotate(3.5deg);
+  }
+}
+
+.hero-ray {
+  animation: hw-ray-pulse 5.5s ease-in-out infinite alternate;
+}
+
+@keyframes hw-ray-pulse {
+  from {
+    opacity: 0.18;
+  }
+  to {
+    opacity: 0.52;
+  }
+}
+
+.hero-wave-swell-group {
+  animation: hw-wave-swell 9s ease-in-out infinite alternate;
+  transform-box: fill-box;
+  transform-origin: center top;
+}
+
+.hero-wave-drift-inner {
+  animation: hw-wave-drift 12s ease-in-out infinite alternate;
+}
+
+.hero-octopus-seek {
+  animation: hw-octopus-seek 16s ease-in-out infinite;
+  transform-origin: 50% 60%;
+}
+
+@keyframes hw-wave-swell {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(3px);
+  }
+}
+
+@keyframes hw-wave-drift {
+  from {
+    transform: translateX(-2.5%);
+  }
+  to {
+    transform: translateX(2.5%);
+  }
+}
+
+@keyframes hw-octopus-seek {
+  0%,
+  14% {
+    transform: translate3d(0, 0, 0) scale(1);
+    opacity: 1;
+  }
+  20% {
+    transform: translate3d(6px, 4px, 0) scale(0.98);
+    opacity: 1;
+  }
+  30%,
+  52% {
+    transform: translate3d(10px, 88px, 0) scale(0.38);
+    opacity: 0;
+  }
+  56% {
+    transform: translate3d(10px, 88px, 0) scale(0.38);
+    opacity: 0;
+  }
+  68% {
+    transform: translate3d(-6px, 36px, 0) scale(0.78);
+    opacity: 0.45;
+  }
+  78%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-bubble,
+  .hero-fish-ltr,
+  .hero-fish-ltr-slow,
+  .hero-fish-swim-left,
+  .hero-seaweed,
+  .hero-tube,
+  .hero-ray,
+  .hero-wave-swell-group,
+  .hero-wave-drift-inner,
+  .hero-octopus-seek {
+    animation: none !important;
+  }
 }

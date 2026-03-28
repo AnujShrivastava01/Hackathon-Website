@@ -8,7 +8,13 @@ import AdminDashboard from './pages/AdminDashboard';
 const ProtectedRoute = ({ children }) => {
   const { admin, loading } = useAuth();
   
-  if (loading) return <div className="h-screen bg-slate-950 flex itmes-center justify-center text-white">Authenticating...</div>;
+  if (loading) {
+    return (
+      <div className="neo-page h-screen flex items-center justify-center text-ink font-bold uppercase tracking-widest text-sm">
+        Authenticating…
+      </div>
+    );
+  }
   if (!admin) return <Navigate to="/admin/login" />;
   
   return children;

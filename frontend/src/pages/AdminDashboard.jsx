@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import api from '../api';
-import { LayoutDashboard, Calendar, Clock, HelpCircle, Settings, LogOut, Plus, Trash2, Edit2, Save, X, ExternalLink, RefreshCw, Terminal } from 'lucide-react';
+import { LayoutDashboard, Calendar, Clock, HelpCircle, Settings, LogOut, Plus, Trash2, Save, ExternalLink, RefreshCw } from 'lucide-react';
 import toast, { Toaster } from 'react-hot-toast';
 
 const AdminDashboard = () => {
@@ -132,114 +132,145 @@ const AdminDashboard = () => {
         }
     };
 
-    if (isLoading) return (
-       <div className="h-screen w-full flex flex-col items-center justify-center bg-slate-950">
-          <RefreshCw size={48} className="text-primary-500 animate-spin mb-4" />
-          <p className="text-slate-500 font-bold uppercase tracking-widest">Loading Dashboard...</p>
-       </div>
-    );
+    const tabBtn = (id) =>
+        `w-full flex items-center space-x-4 px-6 py-4 rounded-xl font-bold border-2 transition-all ${
+            activeTab === id
+                ? 'bg-ink text-white border-ink shadow-neo'
+                : 'text-ink/60 border-transparent bg-white hover:bg-highlight-yellow/40 hover:border-ink hover:shadow-neo-sm'
+        }`;
+
+    if (isLoading) {
+        return (
+            <div className="neo-page h-screen w-full flex flex-col items-center justify-center">
+                <RefreshCw size={48} className="text-ink animate-spin mb-4" />
+                <p className="text-ink/70 font-bold uppercase tracking-widest text-sm">Loading dashboard…</p>
+            </div>
+        );
+    }
 
     return (
-        <div className="min-h-screen bg-slate-950 text-white flex">
-            <Toaster position="bottom-right" />
-            
-            {/* Sidebar */}
-            <aside className="w-80 bg-slate-900 border-r border-white/10 p-8 flex flex-col overflow-y-auto shrink-0 sticky top-0 h-screen">
+        <div className="min-h-screen neo-page text-ink flex">
+            <Toaster
+                position="bottom-right"
+                toastOptions={{
+                    style: {
+                        background: '#fff',
+                        color: '#1A1A1A',
+                        border: '3px solid #1A1A1A',
+                        boxShadow: '4px 4px 0px 0px #1A1A1A',
+                    },
+                }}
+            />
+
+            <aside className="w-80 bg-white border-r-4 border-ink p-8 flex flex-col overflow-y-auto shrink-0 sticky top-0 h-screen shadow-neo">
                 <div className="flex items-center space-x-3 mb-12">
-                   <div className="w-10 h-10 bg-primary-500 rounded-lg flex items-center justify-center">
-                       <Terminal className="text-white w-6 h-6" />
-                   </div>
-                   <h1 className="text-xl font-black tracking-tighter">ADMIN CORE</h1>
+                    <div className="w-11 h-11 shrink-0 rounded-full border-[3px] border-ink bg-white p-0.5 shadow-neo-sm overflow-hidden">
+                        <img
+                            src="/logo.png"
+                            alt="HackOcean"
+                            width="44"
+                            height="44"
+                            className="h-full w-full rounded-full object-contain"
+                        />
+                    </div>
+                    <h1 className="text-xl font-heading uppercase tracking-wide">HackOcean admin</h1>
                 </div>
 
-                <nav className="flex-1 space-y-4">
-                    <button onClick={() => setActiveTab('event')} className={`w-full flex items-center space-x-4 px-6 py-4 rounded-xl font-bold transition-all ${activeTab === 'event' ? 'bg-primary-500 text-white shadow-lg shadow-primary-500/20' : 'text-slate-500 hover:bg-white/5 hover:text-white'}`}>
-                        <LayoutDashboard size={20} /> <span>Event Details</span>
+                <nav className="flex-1 space-y-3">
+                    <button type="button" onClick={() => setActiveTab('event')} className={tabBtn('event')}>
+                        <LayoutDashboard size={20} /> <span>Event details</span>
                     </button>
-                    <button onClick={() => setActiveTab('agenda')} className={`w-full flex items-center space-x-4 px-6 py-4 rounded-xl font-bold transition-all ${activeTab === 'agenda' ? 'bg-primary-500 text-white shadow-lg shadow-primary-500/20' : 'text-slate-500 hover:bg-white/5 hover:text-white'}`}>
+                    <button type="button" onClick={() => setActiveTab('agenda')} className={tabBtn('agenda')}>
                         <Calendar size={20} /> <span>Agenda</span>
                     </button>
-                    <button onClick={() => setActiveTab('schedule')} className={`w-full flex items-center space-x-4 px-6 py-4 rounded-xl font-bold transition-all ${activeTab === 'schedule' ? 'bg-primary-500 text-white shadow-lg shadow-primary-500/20' : 'text-slate-500 hover:bg-white/5 hover:text-white'}`}>
+                    <button type="button" onClick={() => setActiveTab('schedule')} className={tabBtn('schedule')}>
                         <Clock size={20} /> <span>Schedule</span>
                     </button>
-                    <button onClick={() => setActiveTab('faqs')} className={`w-full flex items-center space-x-4 px-6 py-4 rounded-xl font-bold transition-all ${activeTab === 'faqs' ? 'bg-primary-500 text-white shadow-lg shadow-primary-500/20' : 'text-slate-500 hover:bg-white/5 hover:text-white'}`}>
+                    <button type="button" onClick={() => setActiveTab('faqs')} className={tabBtn('faqs')}>
                         <HelpCircle size={20} /> <span>FAQs</span>
                     </button>
                 </nav>
 
-                <div className="mt-auto pt-8 border-t border-white/5 flex flex-col space-y-4">
-                    <div className="px-6 py-4 bg-white/5 rounded-xl flex items-center space-x-3">
-                        <div className="w-8 h-8 bg-slate-800 rounded-full flex items-center justify-center font-bold text-xs">
-                           {admin?.username?.charAt(0).toUpperCase()}
+                <div className="mt-auto pt-8 border-t-2 border-ink/20 flex flex-col space-y-4">
+                    <div className="px-4 py-3 bg-bg border-2 border-ink shadow-neo-sm flex items-center space-x-3">
+                        <div className="w-9 h-9 bg-highlight-teal border-2 border-ink rounded-full flex items-center justify-center font-bold text-sm">
+                            {admin?.username?.charAt(0).toUpperCase()}
                         </div>
-                        <span className="text-sm font-bold opacity-80">{admin?.username}</span>
+                        <span className="text-sm font-bold">{admin?.username}</span>
                     </div>
-                    <button onClick={() => { logout(); navigate('/admin/login') }} className="w-full flex items-center space-x-4 px-6 py-4 text-red-500 font-bold hover:bg-red-500/10 rounded-xl transition-colors">
+                    <button
+                        type="button"
+                        onClick={() => {
+                            logout();
+                            navigate('/admin/login');
+                        }}
+                        className="w-full flex items-center space-x-4 px-6 py-4 text-red-600 font-bold border-2 border-transparent hover:border-red-200 hover:bg-red-50 rounded-xl transition-colors"
+                    >
                         <LogOut size={20} /> <span>Logout</span>
                     </button>
                 </div>
             </aside>
 
-            {/* Main Content Area */}
-            <main className="flex-1 p-12 max-w-6xl mx-auto">
-                
-                {/* LOGO LINK PREVIEW */}
-                <div className="flex items-center justify-between mb-12">
-                   <h2 className="text-4xl font-black tracking-tighter uppercase">{activeTab} Management</h2>
-                   <div className="flex items-center space-x-4">
-                      <a href="/" target="_blank" className="flex items-center space-x-2 px-6 py-3 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 transition-colors duration-200">
-                         <span className="text-sm font-bold uppercase tracking-widest text-slate-400">View Public Site</span>
-                         <ExternalLink size={16} className="text-primary-500" />
-                      </a>
-                   </div>
+            <main className="flex-1 p-8 md:p-12 max-w-6xl mx-auto w-full min-w-0">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-12">
+                    <h2 className="text-3xl md:text-4xl font-heading uppercase tracking-wide">{activeTab} management</h2>
+                    <a
+                        href="/"
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex items-center gap-2 px-6 py-3 bg-white border-[3px] border-ink shadow-neo hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5 transition-all"
+                    >
+                        <span className="text-sm font-bold uppercase tracking-widest">View public site</span>
+                        <ExternalLink size={16} className="text-ink" />
+                    </a>
                 </div>
 
                 {/* --- TAB CONTENT: EVENT --- */}
                 {activeTab === 'event' && (
                   <form onSubmit={handleEventUpdate} className="space-y-8 animate-in fade-in duration-500">
                     <div className="grid md:grid-cols-2 gap-8">
-                       <div className="bg-slate-900 border border-white/10 p-8 rounded-3xl space-y-6">
-                          <h3 className="text-xl font-bold mb-4 flex items-center space-x-2 text-primary-400 border-b border-white/5 pb-4">
-                             <LayoutDashboard size={18}/> <span>Main Info</span>
+                       <div className="bg-white border-[3px] border-ink shadow-neo p-8 rounded-neo space-y-6">
+                          <h3 className="text-xl font-bold mb-4 flex items-center space-x-2 text-ink border-b-2 border-ink/15 pb-4 font-sans normal-case tracking-normal">
+                             <LayoutDashboard size={18}/> <span>Main info</span>
                           </h3>
                           <div className="space-y-2">
-                            <label className="text-xs font-black uppercase tracking-widest text-slate-500 ml-1">Hackathon Name</label>
-                            <input value={event.name} onChange={(e) => setEvent({...event, name: e.target.value})} className="w-full bg-slate-950 border border-white/10 rounded-xl p-4 focus:ring-2 focus:ring-primary-500/20 text-white" />
+                            <label className="text-xs font-black uppercase tracking-widest text-ink/60 ml-1">Hackathon name</label>
+                            <input value={event.name} onChange={(e) => setEvent({...event, name: e.target.value})} className="w-full bg-bg border-2 border-ink rounded-xl p-4 focus:ring-2 focus:ring-ink/20 text-ink font-medium shadow-neo-sm" />
                           </div>
                           <div className="space-y-2">
-                             <label className="text-xs font-black uppercase tracking-widest text-slate-500 ml-1">Registration Link (Google Form)</label>
-                             <input value={event.registrationLink} onChange={(e) => setEvent({...event, registrationLink: e.target.value})} className="w-full bg-slate-950 border border-white/10 rounded-xl p-4 focus:ring-2 focus:ring-primary-500/20 text-white text-primary-400" />
+                             <label className="text-xs font-black uppercase tracking-widest text-ink/60 ml-1">Registration link</label>
+                             <input value={event.registrationLink} onChange={(e) => setEvent({...event, registrationLink: e.target.value})} className="w-full bg-bg border-2 border-ink rounded-xl p-4 focus:ring-2 focus:ring-ink/20 text-ink font-medium shadow-neo-sm" />
                           </div>
                           <div className="space-y-2">
-                             <label className="text-xs font-black uppercase tracking-widest text-slate-500 ml-1">Venue Name / Location</label>
-                             <input value={event.venue} onChange={(e) => setEvent({...event, venue: e.target.value})} className="w-full bg-slate-950 border border-white/10 rounded-xl p-4 focus:ring-2 focus:ring-primary-500/20 text-white" />
+                             <label className="text-xs font-black uppercase tracking-widest text-ink/60 ml-1">Venue</label>
+                             <input value={event.venue} onChange={(e) => setEvent({...event, venue: e.target.value})} className="w-full bg-bg border-2 border-ink rounded-xl p-4 focus:ring-2 focus:ring-ink/20 text-ink font-medium shadow-neo-sm" />
                           </div>
                        </div>
 
-                       <div className="bg-slate-900 border border-white/10 p-8 rounded-3xl space-y-6">
-                         <h3 className="text-xl font-bold mb-4 flex items-center space-x-2 text-primary-400 border-b border-white/5 pb-4">
-                             <Settings size={18}/> <span>Contact Information</span>
+                       <div className="bg-white border-[3px] border-ink shadow-neo p-8 rounded-neo space-y-6">
+                         <h3 className="text-xl font-bold mb-4 flex items-center space-x-2 text-ink border-b-2 border-ink/15 pb-4 font-sans normal-case tracking-normal">
+                             <Settings size={18}/> <span>Contact information</span>
                           </h3>
                           <div className="space-y-2">
-                            <label className="text-xs font-black uppercase tracking-widest text-slate-500 ml-1">Contact Email</label>
-                            <input value={event.contactEmail} onChange={(e) => setEvent({...event, contactEmail: e.target.value})} className="w-full bg-slate-950 border border-white/10 rounded-xl p-4 focus:ring-2 focus:ring-primary-500/20 text-white" />
+                            <label className="text-xs font-black uppercase tracking-widest text-ink/60 ml-1">Contact email</label>
+                            <input value={event.contactEmail} onChange={(e) => setEvent({...event, contactEmail: e.target.value})} className="w-full bg-bg border-2 border-ink rounded-xl p-4 focus:ring-2 focus:ring-ink/20 text-ink font-medium shadow-neo-sm" />
                           </div>
                           <div className="space-y-2">
-                            <label className="text-xs font-black uppercase tracking-widest text-slate-500 ml-1">Contact Phone</label>
-                            <input value={event.contactPhone} onChange={(e) => setEvent({...event, contactPhone: e.target.value})} className="w-full bg-slate-950 border border-white/10 rounded-xl p-4 focus:ring-2 focus:ring-primary-500/20 text-white" />
+                            <label className="text-xs font-black uppercase tracking-widest text-ink/60 ml-1">Contact phone</label>
+                            <input value={event.contactPhone} onChange={(e) => setEvent({...event, contactPhone: e.target.value})} className="w-full bg-bg border-2 border-ink rounded-xl p-4 focus:ring-2 focus:ring-ink/20 text-ink font-medium shadow-neo-sm" />
                           </div>
                        </div>
                     </div>
 
-                    <div className="bg-slate-900 border border-white/10 p-8 rounded-3xl space-y-2">
-                       <label className="text-xs font-black uppercase tracking-widest text-slate-500 ml-1">Hackathon Description</label>
-                       <textarea rows="4" value={event.description} onChange={(e) => setEvent({...event, description: e.target.value})} className="w-full bg-slate-950 border border-white/10 rounded-xl p-4 focus:ring-2 focus:ring-primary-500/20 text-white leading-relaxed" />
+                    <div className="bg-white border-[3px] border-ink shadow-neo p-8 rounded-neo space-y-2">
+                       <label className="text-xs font-black uppercase tracking-widest text-ink/60 ml-1">Hackathon description</label>
+                       <textarea rows="4" value={event.description} onChange={(e) => setEvent({...event, description: e.target.value})} className="w-full bg-bg border-2 border-ink rounded-xl p-4 focus:ring-2 focus:ring-ink/20 text-ink leading-relaxed font-medium shadow-neo-sm" />
                     </div>
 
                     <div className="flex justify-end pt-4">
-                       <button type="submit" className="btn-primary !py-4 px-12 flex items-center space-x-3 text-lg font-black tracking-widest shadow-2xl shadow-primary-500/20">
+                       <button type="submit" className="btn-ink !py-4 px-12 flex items-center space-x-3 text-lg font-black tracking-widest rounded-none border-[3px]">
                           <Save size={20} />
-                          <span>Save Event Changes</span>
+                          <span>Save event changes</span>
                        </button>
                     </div>
                   </form>
@@ -248,52 +279,52 @@ const AdminDashboard = () => {
                 {/* --- TAB CONTENT: AGENDA --- */}
                 {activeTab === 'agenda' && (
                   <div className="space-y-12 animate-in fade-in duration-500">
-                    <form onSubmit={handleAddAgenda} className="bg-slate-900 border border-white/10 p-10 rounded-3xl space-y-8">
-                       <h3 className="text-2xl font-black mb-8 border-b border-white/5 pb-4">Post New Agenda Phase</h3>
+                    <form onSubmit={handleAddAgenda} className="bg-white border-[3px] border-ink shadow-neo p-10 rounded-neo space-y-8">
+                       <h3 className="text-2xl font-heading mb-8 border-b-2 border-ink/15 pb-4 uppercase tracking-wide">New agenda phase</h3>
                        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
                           <div className="space-y-2">
-                            <label className="text-xs font-black uppercase tracking-widest text-slate-500 ml-1">Phase Title</label>
-                            <input placeholder="Ideation" required value={newAgenda.title} onChange={(e) => setNewAgenda({...newAgenda, title: e.target.value})} className="w-full bg-slate-950 border border-white/10 rounded-xl p-4 focus:border-primary-500 outline-none" />
+                            <label className="text-xs font-black uppercase tracking-widest text-ink/60 ml-1">Phase title</label>
+                            <input placeholder="Ideation" required value={newAgenda.title} onChange={(e) => setNewAgenda({...newAgenda, title: e.target.value})} className="w-full bg-bg border-2 border-ink rounded-xl p-4 focus:border-ink outline-none font-medium shadow-neo-sm" />
                           </div>
                           <div className="space-y-2">
-                             <label className="text-xs font-black uppercase tracking-widest text-slate-500 ml-1">Day Number</label>
-                             <input type="number" required value={newAgenda.day} onChange={(e) => setNewAgenda({...newAgenda, day: e.target.value})} className="w-full bg-slate-950 border border-white/10 rounded-xl p-4 focus:border-primary-500 outline-none" />
+                             <label className="text-xs font-black uppercase tracking-widest text-ink/60 ml-1">Day number</label>
+                             <input type="number" required value={newAgenda.day} onChange={(e) => setNewAgenda({...newAgenda, day: e.target.value})} className="w-full bg-bg border-2 border-ink rounded-xl p-4 focus:border-ink outline-none font-medium shadow-neo-sm" />
                           </div>
                           <div className="space-y-2">
-                             <label className="text-xs font-black uppercase tracking-widest text-slate-500 ml-1">Phase Type</label>
-                             <input placeholder="Pre-Hack" required value={newAgenda.phase} onChange={(e) => setNewAgenda({...newAgenda, phase: e.target.value})} className="w-full bg-slate-950 border border-white/10 rounded-xl p-4 focus:border-primary-500 outline-none" />
+                             <label className="text-xs font-black uppercase tracking-widest text-ink/60 ml-1">Phase type</label>
+                             <input placeholder="Pre-hack" required value={newAgenda.phase} onChange={(e) => setNewAgenda({...newAgenda, phase: e.target.value})} className="w-full bg-bg border-2 border-ink rounded-xl p-4 focus:border-ink outline-none font-medium shadow-neo-sm" />
                           </div>
                           <div className="flex items-end">
-                             <button type="submit" className="w-full btn-primary !py-4 rounded-xl flex items-center justify-center space-x-2 h-[58px]">
-                               <Plus size={20} /> <span className="font-bold underline uppercase tracking-widest text-xs">Add Item</span>
+                             <button type="submit" className="w-full btn-ink !py-4 rounded-xl flex items-center justify-center space-x-2 h-[58px] border-[3px]">
+                               <Plus size={20} /> <span className="font-bold uppercase tracking-widest text-xs">Add item</span>
                              </button>
                           </div>
                        </div>
                        <div className="space-y-2">
-                          <label className="text-xs font-black uppercase tracking-widest text-slate-500 ml-1">Full Description</label>
-                          <textarea rows="3" required placeholder="Describe what happens in this phase in detail..." value={newAgenda.description} onChange={(e) => setNewAgenda({...newAgenda, description: e.target.value})} className="w-full bg-slate-950 border border-white/10 rounded-xl p-4 focus:border-primary-500 outline-none" />
+                          <label className="text-xs font-black uppercase tracking-widest text-ink/60 ml-1">Full description</label>
+                          <textarea rows="3" required placeholder="Describe what happens in this phase..." value={newAgenda.description} onChange={(e) => setNewAgenda({...newAgenda, description: e.target.value})} className="w-full bg-bg border-2 border-ink rounded-xl p-4 focus:border-ink outline-none font-medium shadow-neo-sm" />
                        </div>
                     </form>
 
                     <div className="space-y-6">
-                       <h3 className="text-2xl font-black border-l-4 border-primary-500 pl-4">Existing Agenda Items</h3>
+                       <h3 className="text-2xl font-heading border-l-4 border-ink pl-4 uppercase tracking-wide">Existing agenda items</h3>
                        <div className="grid lg:grid-cols-2 gap-6">
                           {agendas.map((a) => (
-                             <div key={a._id} className="bg-slate-900 border border-white/10 p-8 rounded-2xl group flex justify-between items-start">
+                             <div key={a._id} className="bg-white border-[3px] border-ink shadow-neo p-8 rounded-neo group flex justify-between items-start gap-4">
                                 <div>
-                                   <div className="flex items-center space-x-3 mb-2">
-                                      <span className="px-3 py-1 bg-primary-500/10 border border-primary-500/20 rounded text-[10px] font-black uppercase tracking-[0.2em] text-primary-400">Day {a.day}</span>
-                                      <h4 className="text-xl font-bold">{a.title}</h4>
+                                   <div className="flex flex-wrap items-center gap-3 mb-2">
+                                      <span className="px-3 py-1 bg-highlight-yellow border-2 border-ink text-[10px] font-black uppercase tracking-[0.2em] text-ink shadow-neo-sm">Day {a.day}</span>
+                                      <h4 className="text-xl font-bold font-sans normal-case tracking-normal">{a.title}</h4>
                                    </div>
-                                   <p className="text-slate-500 text-sm leading-relaxed mb-4">{a.description}</p>
-                                   <span className="text-xs font-black uppercase tracking-widest text-slate-700">{a.phase}</span>
+                                   <p className="text-ink/70 text-sm leading-relaxed mb-4">{a.description}</p>
+                                   <span className="text-xs font-black uppercase tracking-widest text-ink/50">{a.phase}</span>
                                 </div>
-                                <button onClick={() => handleDeleteAgenda(a._id)} className="p-2 text-slate-600 hover:text-red-500 transition-colors bg-white/5 rounded-lg">
+                                <button type="button" onClick={() => handleDeleteAgenda(a._id)} className="p-2 text-ink/50 hover:text-red-600 transition-colors border-2 border-transparent hover:border-red-200 shrink-0">
                                    <Trash2 size={20} />
                                 </button>
                              </div>
                           ))}
-                          {agendas.length === 0 && <p className="text-slate-700 italic">No agenda items created yet.</p>}
+                          {agendas.length === 0 && <p className="text-ink/50 italic">No agenda items yet.</p>}
                        </div>
                     </div>
                   </div>
@@ -302,58 +333,58 @@ const AdminDashboard = () => {
                 {/* --- TAB CONTENT: SCHEDULE --- */}
                 {activeTab === 'schedule' && (
                   <div className="space-y-12 animate-in fade-in duration-500">
-                     <form onSubmit={handleAddSchedule} className="bg-slate-900 border border-white/10 p-10 rounded-3xl space-y-8">
-                       <h3 className="text-2xl font-black mb-8 border-b border-white/5 pb-4">Schedule Entry</h3>
+                     <form onSubmit={handleAddSchedule} className="bg-white border-[3px] border-ink shadow-neo p-10 rounded-neo space-y-8">
+                       <h3 className="text-2xl font-heading mb-8 border-b-2 border-ink/15 pb-4 uppercase tracking-wide">Schedule entry</h3>
                        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
                           <div className="space-y-2">
-                             <label className="text-xs font-black uppercase tracking-widest text-slate-500 ml-1">Time Slot</label>
-                             <input placeholder="09:00 AM" required value={newSchedule.time} onChange={(e) => setNewSchedule({...newSchedule, time: e.target.value})} className="w-full bg-slate-950 border border-white/10 rounded-xl p-4 focus:border-primary-500 outline-none" />
+                             <label className="text-xs font-black uppercase tracking-widest text-ink/60 ml-1">Time slot</label>
+                             <input placeholder="09:00 AM" required value={newSchedule.time} onChange={(e) => setNewSchedule({...newSchedule, time: e.target.value})} className="w-full bg-bg border-2 border-ink rounded-xl p-4 focus:border-ink outline-none font-medium shadow-neo-sm" />
                           </div>
                           <div className="space-y-6 lg:col-span-2">
-                             <label className="text-xs font-black uppercase tracking-widest text-slate-500 ml-1">Activity Name</label>
-                             <input placeholder="Keynote Ceremony" required value={newSchedule.activity} onChange={(e) => setNewSchedule({...newSchedule, activity: e.target.value})} className="w-full bg-slate-950 border border-white/10 rounded-xl p-4 focus:border-primary-500 outline-none" />
+                             <label className="text-xs font-black uppercase tracking-widest text-ink/60 ml-1">Activity name</label>
+                             <input placeholder="Keynote ceremony" required value={newSchedule.activity} onChange={(e) => setNewSchedule({...newSchedule, activity: e.target.value})} className="w-full bg-bg border-2 border-ink rounded-xl p-4 focus:border-ink outline-none font-medium shadow-neo-sm" />
                           </div>
                           <div className="space-y-2">
-                             <label className="text-xs font-black uppercase tracking-widest text-slate-500 ml-1">Day</label>
-                             <input type="number" required value={newSchedule.day} onChange={(e) => setNewSchedule({...newSchedule, day: Number(e.target.value)})} className="w-full bg-slate-950 border border-white/10 rounded-xl p-4 focus:border-primary-500 outline-none" />
+                             <label className="text-xs font-black uppercase tracking-widest text-ink/60 ml-1">Day</label>
+                             <input type="number" required value={newSchedule.day} onChange={(e) => setNewSchedule({...newSchedule, day: Number(e.target.value)})} className="w-full bg-bg border-2 border-ink rounded-xl p-4 focus:border-ink outline-none font-medium shadow-neo-sm" />
                           </div>
                        </div>
-                       <div className="flex items-center space-x-6">
+                       <div className="flex flex-col lg:flex-row lg:items-end gap-6">
                            <div className="flex-1 space-y-2">
-                              <label className="text-xs font-black uppercase tracking-widest text-slate-500 ml-1">Activity Context</label>
-                               <input placeholder="Opening remarks from the founders..." value={newSchedule.description} onChange={(e) => setNewSchedule({...newSchedule, description: e.target.value})} className="w-full bg-slate-950 border border-white/10 rounded-xl p-4 focus:border-primary-500 outline-none" />
+                              <label className="text-xs font-black uppercase tracking-widest text-ink/60 ml-1">Activity context</label>
+                               <input placeholder="Opening remarks..." value={newSchedule.description} onChange={(e) => setNewSchedule({...newSchedule, description: e.target.value})} className="w-full bg-bg border-2 border-ink rounded-xl p-4 focus:border-ink outline-none font-medium shadow-neo-sm" />
                            </div>
-                           <div className="flex items-end pt-8">
-                             <button type="submit" className="btn-primary !py-4 rounded-xl flex items-center justify-center space-x-2 h-[58px] px-8">
-                               <Plus size={20} /> <span className="font-bold underline uppercase tracking-widest text-xs">Add Event</span>
+                           <div className="flex items-end">
+                             <button type="submit" className="btn-ink !py-4 rounded-xl flex items-center justify-center space-x-2 h-[58px] px-8 border-[3px] whitespace-nowrap">
+                               <Plus size={20} /> <span className="font-bold uppercase tracking-widest text-xs">Add slot</span>
                              </button>
                            </div>
                        </div>
                     </form>
 
                     <div className="space-y-6">
-                       <h3 className="text-2xl font-black border-l-4 border-primary-500 pl-4">Live Timeline</h3>
+                       <h3 className="text-2xl font-heading border-l-4 border-ink pl-4 uppercase tracking-wide">Live timeline</h3>
                        <div className="space-y-4">
                           {schedules.map((s) => (
-                             <div key={s._id} className="bg-slate-900 border border-white/10 p-6 rounded-2xl flex items-center justify-between group">
-                                <div className="flex items-center space-x-8">
-                                   <div className="text-primary-500 font-black text-lg w-24 border-r border-white/5 pr-4 shrink-0 uppercase tracking-tighter">
+                             <div key={s._id} className="bg-white border-[3px] border-ink shadow-neo p-6 rounded-neo flex flex-col sm:flex-row sm:items-center justify-between gap-4 group">
+                                <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-8 min-w-0">
+                                   <div className="text-ink font-black text-lg sm:w-28 border-b-2 sm:border-b-0 sm:border-r-2 border-ink/15 sm:pr-4 shrink-0 uppercase tracking-tighter">
                                       {s.time}
                                    </div>
-                                   <div>
-                                      <h4 className="text-xl font-bold mb-1 tracking-tight">{s.activity}</h4>
-                                      <p className="text-slate-500 text-sm">{s.description}</p>
+                                   <div className="min-w-0">
+                                      <h4 className="text-xl font-bold mb-1 tracking-tight font-sans normal-case">{s.activity}</h4>
+                                      <p className="text-ink/65 text-sm">{s.description}</p>
                                    </div>
                                 </div>
-                                <div className="flex items-center space-x-4">
-                                   <span className="text-[10px] font-black uppercase tracking-widest text-slate-700 bg-white/5 px-3 py-1 rounded">Day {s.day}</span>
-                                   <button onClick={() => handleDeleteSchedule(s._id)} className="p-2 text-slate-600 hover:text-red-500 transition-colors bg-white/5 rounded-lg">
+                                <div className="flex items-center gap-4 shrink-0">
+                                   <span className="text-[10px] font-black uppercase tracking-widest text-ink bg-highlight-teal border-2 border-ink px-3 py-1 shadow-neo-sm">Day {s.day}</span>
+                                   <button type="button" onClick={() => handleDeleteSchedule(s._id)} className="p-2 text-ink/50 hover:text-red-600 border-2 border-transparent hover:border-red-200 transition-colors">
                                       <Trash2 size={20} />
                                    </button>
                                 </div>
                              </div>
                           ))}
-                          {schedules.length === 0 && <p className="text-slate-700 italic">No schedule entries recorded.</p>}
+                          {schedules.length === 0 && <p className="text-ink/50 italic">No schedule entries yet.</p>}
                        </div>
                     </div>
                   </div>
@@ -362,42 +393,42 @@ const AdminDashboard = () => {
                 {/* --- TAB CONTENT: FAQS --- */}
                 {activeTab === 'faqs' && (
                   <div className="space-y-12 animate-in fade-in duration-500">
-                     <form onSubmit={handleAddFaq} className="bg-slate-900 border border-white/10 p-10 rounded-3xl space-y-8">
-                       <h3 className="text-2xl font-black mb-8 border-b border-white/5 pb-4">New FAQ Pair</h3>
+                     <form onSubmit={handleAddFaq} className="bg-white border-[3px] border-ink shadow-neo p-10 rounded-neo space-y-8">
+                       <h3 className="text-2xl font-heading mb-8 border-b-2 border-ink/15 pb-4 uppercase tracking-wide">New FAQ</h3>
                        <div className="space-y-6">
                           <div className="space-y-2">
-                             <label className="text-xs font-black uppercase tracking-widest text-slate-500 ml-1">The Question</label>
-                             <input placeholder="What are the team size limits?" required value={newFaq.question} onChange={(e) => setNewFaq({...newFaq, question: e.target.value})} className="w-full bg-slate-950 border border-white/10 rounded-xl p-4 focus:border-primary-500 outline-none" />
+                             <label className="text-xs font-black uppercase tracking-widest text-ink/60 ml-1">Question</label>
+                             <input placeholder="What are the team size limits?" required value={newFaq.question} onChange={(e) => setNewFaq({...newFaq, question: e.target.value})} className="w-full bg-bg border-2 border-ink rounded-xl p-4 focus:border-ink outline-none font-medium shadow-neo-sm" />
                           </div>
                           <div className="space-y-2">
-                             <label className="text-xs font-black uppercase tracking-widest text-slate-500 ml-1">The Answer</label>
-                             <textarea rows="3" required placeholder="Maximum team size is 4 members. You can also participate solo..." value={newFaq.answer} onChange={(e) => setNewFaq({...newFaq, answer: e.target.value})} className="w-full bg-slate-950 border border-white/10 rounded-xl p-4 focus:border-primary-500 outline-none leading-relaxed" />
+                             <label className="text-xs font-black uppercase tracking-widest text-ink/60 ml-1">Answer</label>
+                             <textarea rows="3" required placeholder="Maximum team size is 4 members..." value={newFaq.answer} onChange={(e) => setNewFaq({...newFaq, answer: e.target.value})} className="w-full bg-bg border-2 border-ink rounded-xl p-4 focus:border-ink outline-none leading-relaxed font-medium shadow-neo-sm" />
                           </div>
                        </div>
                        <div className="flex justify-end">
-                          <button type="submit" className="btn-primary !py-4 rounded-xl flex items-center space-x-2 px-10">
-                            <Plus size={20} /> <span className="font-bold underline uppercase tracking-widest text-xs">Published FAQ</span>
+                          <button type="submit" className="btn-ink !py-4 rounded-xl flex items-center space-x-2 px-10 border-[3px]">
+                            <Plus size={20} /> <span className="font-bold uppercase tracking-widest text-xs">Publish FAQ</span>
                           </button>
                        </div>
                     </form>
 
                     <div className="space-y-6">
-                       <h3 className="text-2xl font-black border-l-4 border-primary-500 pl-4">Knowledge Base</h3>
+                       <h3 className="text-2xl font-heading border-l-4 border-ink pl-4 uppercase tracking-wide">Knowledge base</h3>
                        <div className="grid lg:grid-cols-2 gap-8">
                           {faqs.map((f) => (
-                             <div key={f._id} className="bg-slate-900 border border-white/10 p-8 rounded-2xl flex flex-col justify-between group h-full">
+                             <div key={f._id} className="bg-white border-[3px] border-ink shadow-neo p-8 rounded-neo flex flex-col justify-between h-full">
                                 <div>
-                                   <div className="flex items-center justify-between mb-4">
-                                      <h4 className="text-lg font-bold text-white tracking-tight">{f.question}</h4>
-                                      <button onClick={() => handleDeleteFaq(f._id)} className="p-2 text-slate-600 hover:text-red-500 transition-colors bg-white/5 rounded-lg shrink-0">
+                                   <div className="flex items-start justify-between gap-4 mb-4">
+                                      <h4 className="text-lg font-bold text-ink tracking-tight font-sans normal-case">{f.question}</h4>
+                                      <button type="button" onClick={() => handleDeleteFaq(f._id)} className="p-2 text-ink/50 hover:text-red-600 border-2 border-transparent hover:border-red-200 shrink-0">
                                          <Trash2 size={20} />
                                       </button>
                                    </div>
-                                   <p className="text-slate-500 text-sm leading-relaxed">{f.answer}</p>
+                                   <p className="text-ink/70 text-sm leading-relaxed">{f.answer}</p>
                                 </div>
                              </div>
                           ))}
-                          {faqs.length === 0 && <p className="text-slate-700 italic">FAQ list is currently empty.</p>}
+                          {faqs.length === 0 && <p className="text-ink/50 italic">No FAQs yet.</p>}
                        </div>
                     </div>
                   </div>
