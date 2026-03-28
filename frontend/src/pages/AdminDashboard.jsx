@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import api from '../api';
@@ -18,6 +18,8 @@ import {
     ExternalLink,
     RefreshCw,
     Pencil,
+    Menu,
+    X,
 } from 'lucide-react';
 import toast, { Toaster } from 'react-hot-toast';
 
@@ -43,6 +45,7 @@ const AdminDashboard = () => {
     const { admin, logout } = useAuth();
     const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState('event');
+    const [mobileNavOpen, setMobileNavOpen] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
 
     // Data States
@@ -74,6 +77,38 @@ const AdminDashboard = () => {
         }
         fetchDashboardData();
     }, [admin]);
+
+    const selectTab = useCallback((id) => {
+        setActiveTab(id);
+        setMobileNavOpen(false);
+    }, []);
+
+    useEffect(() => {
+        if (!mobileNavOpen) return;
+        const prevOverflow = document.body.style.overflow;
+        document.body.style.overflow = 'hidden';
+        return () => {
+            document.body.style.overflow = prevOverflow;
+        };
+    }, [mobileNavOpen]);
+
+    useEffect(() => {
+        const mq = window.matchMedia('(min-width: 768px)');
+        const closeIfDesktop = () => {
+            if (mq.matches) setMobileNavOpen(false);
+        };
+        closeIfDesktop();
+        mq.addEventListener('change', closeIfDesktop);
+        return () => mq.removeEventListener('change', closeIfDesktop);
+    }, []);
+
+    useEffect(() => {
+        const onKey = (e) => {
+            if (e.key === 'Escape') setMobileNavOpen(false);
+        };
+        window.addEventListener('keydown', onKey);
+        return () => window.removeEventListener('keydown', onKey);
+    }, []);
 
     const fetchDashboardData = async () => {
         setIsLoading(true);
@@ -319,7 +354,7 @@ const AdminDashboard = () => {
     }
 
     return (
-        <div className="min-h-screen neo-page text-ink flex">
+        <div className="min-h-screen neo-page text-ink flex relative">
             <Toaster
                 position="bottom-right"
                 toastOptions={{
@@ -332,8 +367,22 @@ const AdminDashboard = () => {
                 }}
             />
 
-            <aside className="w-80 bg-white border-r-4 border-ink p-8 flex flex-col overflow-y-auto shrink-0 sticky top-0 h-screen shadow-neo">
-                <div className="flex items-center space-x-3 mb-12">
+            {mobileNavOpen && (
+                <button
+                    type="button"
+                    aria-label="Close menu"
+                    className="fixed inset-0 z-40 bg-ink/45 md:hidden"
+                    onClick={() => setMobileNavOpen(false)}
+                />
+            )}
+
+            <aside
+                id="admin-mobile-nav"
+                className={`fixed md:relative left-0 top-0 z-50 md:z-auto h-screen w-80 max-w-[min(20rem,92vw)] shrink-0 bg-white border-r-4 border-ink p-6 md:p-8 flex flex-col overflow-y-auto shadow-neo transition-transform duration-300 ease-out ${
+                    mobileNavOpen ? 'translate-x-0' : '-translate-x-full'
+                } md:translate-x-0`}
+            >
+                <div className="flex items-center gap-3 mb-8 md:mb-12 min-w-0">
                     <div className="w-11 h-11 shrink-0 rounded-full border-[3px] border-ink bg-white p-0.5 shadow-neo-sm overflow-hidden">
                         <img
                             src="/logo.png"
@@ -343,23 +392,33 @@ const AdminDashboard = () => {
                             className="h-full w-full rounded-full object-contain"
                         />
                     </div>
-                    <h1 className="text-xl font-heading uppercase tracking-wide">HackOcean admin</h1>
+                    <h1 className="text-lg sm:text-xl font-heading uppercase tracking-wide flex-1 min-w-0 leading-tight">
+                        HackOcean admin
+                    </h1>
+                    <button
+                        type="button"
+                        className="md:hidden shrink-0 p-2 rounded-lg border-2 border-ink bg-white shadow-neo-sm hover:bg-highlight-yellow/30 transition-colors"
+                        aria-label="Close navigation"
+                        onClick={() => setMobileNavOpen(false)}
+                    >
+                        <X size={20} className="text-ink" />
+                    </button>
                 </div>
 
-                <nav className="flex-1 space-y-3">
-                    <button type="button" onClick={() => setActiveTab('event')} className={tabBtn('event')}>
+                <nav className="flex-1 space-y-3" aria-label="Admin sections">
+                    <button type="button" onClick={() => selectTab('event')} className={tabBtn('event')}>
                         <LayoutDashboard size={20} /> <span>Event details</span>
                     </button>
-                    <button type="button" onClick={() => setActiveTab('tracks')} className={tabBtn('tracks')}>
+                    <button type="button" onClick={() => selectTab('tracks')} className={tabBtn('tracks')}>
                         <Layers size={20} /> <span>Tracks</span>
                     </button>
-                    <button type="button" onClick={() => setActiveTab('agenda')} className={tabBtn('agenda')}>
+                    <button type="button" onClick={() => selectTab('agenda')} className={tabBtn('agenda')}>
                         <Calendar size={20} /> <span>Agenda</span>
                     </button>
-                    <button type="button" onClick={() => setActiveTab('schedule')} className={tabBtn('schedule')}>
+                    <button type="button" onClick={() => selectTab('schedule')} className={tabBtn('schedule')}>
                         <Clock size={20} /> <span>Schedule</span>
                     </button>
-                    <button type="button" onClick={() => setActiveTab('faqs')} className={tabBtn('faqs')}>
+                    <button type="button" onClick={() => selectTab('faqs')} className={tabBtn('faqs')}>
                         <HelpCircle size={20} /> <span>FAQs</span>
                     </button>
                 </nav>
@@ -384,18 +443,36 @@ const AdminDashboard = () => {
                 </div>
             </aside>
 
-            <main className="flex-1 p-8 md:p-12 max-w-6xl mx-auto w-full min-w-0">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-12">
-                    <h2 className="text-3xl md:text-4xl font-heading uppercase tracking-wide">{activeTab} management</h2>
-                    <a
-                        href="/"
-                        target="_blank"
-                        rel="noreferrer"
-                        className="inline-flex items-center gap-2 px-6 py-3 bg-white border-[3px] border-ink shadow-neo hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5 transition-all"
-                    >
-                        <span className="text-sm font-bold uppercase tracking-widest">View public site</span>
-                        <ExternalLink size={16} className="text-ink" />
-                    </a>
+            <main className="flex-1 p-4 sm:p-8 md:p-12 max-w-6xl mx-auto w-full min-w-0">
+                <div className="flex flex-col gap-4 sm:gap-6 mb-8 md:mb-12">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                        <div className="flex items-start gap-3 min-w-0">
+                            <button
+                                type="button"
+                                className="md:hidden shrink-0 p-2.5 rounded-xl border-[3px] border-ink bg-white shadow-neo hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5 transition-all"
+                                aria-expanded={mobileNavOpen}
+                                aria-controls="admin-mobile-nav"
+                                aria-label="Open navigation menu"
+                                onClick={() => setMobileNavOpen(true)}
+                            >
+                                <Menu size={22} className="text-ink" />
+                            </button>
+                            <h2 className="text-2xl sm:text-3xl md:text-4xl font-heading uppercase tracking-wide flex-1 min-w-0 break-words leading-tight pt-0.5 md:pt-0">
+                                {activeTab} management
+                            </h2>
+                        </div>
+                        <a
+                            href="/"
+                            target="_blank"
+                            rel="noreferrer"
+                            className="inline-flex items-center justify-center gap-2 px-5 sm:px-6 py-3 bg-white border-[3px] border-ink shadow-neo hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5 transition-all sm:self-start sm:shrink-0 w-full sm:w-auto"
+                        >
+                            <span className="text-xs sm:text-sm font-bold uppercase tracking-widest text-center">
+                                View public site
+                            </span>
+                            <ExternalLink size={16} className="text-ink shrink-0" />
+                        </a>
+                    </div>
                 </div>
 
                 {/* --- TAB CONTENT: EVENT --- */}
