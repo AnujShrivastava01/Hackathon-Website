@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import api from '../api';
-import { REGISTRATION_URL } from '../constants';
+import { REGISTRATION_URL, normalizeRegistrationLink } from '../constants';
 import { LayoutDashboard, Calendar, Clock, HelpCircle, Image as ImageIcon, Layers, Settings, LogOut, Plus, Trash2, Save, ExternalLink, RefreshCw } from 'lucide-react';
 
 function formatHeroCarouselForEditor(carousel) {
@@ -83,7 +83,8 @@ const AdminDashboard = () => {
         e.preventDefault();
         try {
             const heroCarousel = parseHeroCarouselEditor(heroCarouselText);
-            const payload = { ...event, heroCarousel };
+            const registrationLink = normalizeRegistrationLink(event.registrationLink || '');
+            const payload = { ...event, heroCarousel, registrationLink };
             const { data } = await api.put('/event', payload);
             setEvent(data);
             setHeroCarouselText(formatHeroCarouselForEditor(data.heroCarousel));
@@ -296,8 +297,18 @@ const AdminDashboard = () => {
                             <input value={event.name} onChange={(e) => setEvent({...event, name: e.target.value})} className="w-full bg-bg border-2 border-ink rounded-xl p-4 focus:ring-2 focus:ring-ink/20 text-ink font-medium shadow-neo-sm" />
                           </div>
                           <div className="space-y-2">
-                             <label className="text-xs font-black uppercase tracking-widest text-ink/60 ml-1">Registration link</label>
-                             <input value={event.registrationLink} onChange={(e) => setEvent({...event, registrationLink: e.target.value})} placeholder={REGISTRATION_URL} className="w-full bg-bg border-2 border-ink rounded-xl p-4 focus:ring-2 focus:ring-ink/20 text-ink font-medium shadow-neo-sm" />
+                             <label className="text-xs font-black uppercase tracking-widest text-ink/60 ml-1">Registration link (full URL)</label>
+                             <textarea
+                               rows={3}
+                               value={event.registrationLink ?? ''}
+                               onChange={(e) => setEvent({ ...event, registrationLink: e.target.value })}
+                               placeholder={REGISTRATION_URL}
+                               spellCheck={false}
+                               className="w-full min-h-[5.5rem] resize-y bg-bg border-2 border-ink rounded-xl p-4 focus:ring-2 focus:ring-ink/20 text-ink text-sm font-mono leading-snug break-all shadow-neo-sm"
+                             />
+                             <p className="text-xs text-ink/60 font-medium leading-relaxed">
+                               Paste the entire link from Google Forms → Send → link. Long <code className="text-[11px] bg-bg px-1 border border-ink/25 rounded">…/d/e/1FAIpQLS…/viewform</code> strings must be complete or the form will 404.
+                             </p>
                           </div>
                           <div className="space-y-2">
                              <label className="text-xs font-black uppercase tracking-widest text-ink/60 ml-1">Venue</label>

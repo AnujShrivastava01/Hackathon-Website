@@ -1,9 +1,24 @@
-/** Default Google Form for registration (used when API omits `registrationLink`). */
-export const REGISTRATION_URL = 'https://forms.gle/URMUMovSCwjbzNi68';
+/**
+ * Default registration link when the event has none saved.
+ * Replace in admin with your full Google Forms URL (Share → Get link).
+ */
+export const REGISTRATION_URL =
+  'https://docs.google.com/forms/d/e/1FAIpQLSdO7N7vXy7v3z_XhA/viewform';
+
+/** Strip invisible chars and line breaks so pasted form links stay one valid URL. */
+export function normalizeRegistrationLink(raw) {
+  if (typeof raw !== 'string') return '';
+  return raw
+    .replace(/[\u200B-\u200D\uFEFF\u00A0]/g, '')
+    .replace(/\s+/g, '')
+    .trim();
+}
 
 /** Resolve registration URL from API `event` with fallback to `REGISTRATION_URL`. */
 export function resolveRegistrationHref(event) {
-  const link = typeof event?.registrationLink === 'string' ? event.registrationLink.trim() : '';
+  const link = normalizeRegistrationLink(
+    typeof event?.registrationLink === 'string' ? event.registrationLink : ''
+  );
   return link || REGISTRATION_URL;
 }
 
