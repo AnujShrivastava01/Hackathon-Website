@@ -1,0 +1,15 @@
+{
+  "name": "hackathon-portal",
+  "version": "1.0.0",
+  "description": "Participant-Centric Hackathon Portal",
+  "main": "backend/index.js",
+  "scripts": {
+    "start-backend": "cd backend && node index.js",
+    "start-frontend": "cd frontend && npm run dev",
+    "install-all": "cd backend && npm install && cd ../frontend && npm install",
+    "dev": "concurrently \"npm run start-backend\" \"npm run start-frontend\""
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
