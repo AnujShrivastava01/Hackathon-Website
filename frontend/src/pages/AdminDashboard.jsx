@@ -378,11 +378,11 @@ const AdminDashboard = () => {
 
             <aside
                 id="admin-mobile-nav"
-                className={`fixed md:relative left-0 top-0 z-50 md:z-auto h-screen w-80 max-w-[min(20rem,92vw)] shrink-0 bg-white border-r-4 border-ink p-6 md:p-8 flex flex-col overflow-y-auto shadow-neo transition-transform duration-300 ease-out ${
+                className={`fixed md:relative left-0 top-0 z-50 md:z-auto h-dvh max-h-dvh md:h-screen md:max-h-none w-80 max-w-[min(20rem,92vw)] shrink-0 bg-white border-r-4 border-ink p-6 md:p-8 flex flex-col overflow-hidden shadow-neo transition-transform duration-300 ease-out ${
                     mobileNavOpen ? 'translate-x-0' : '-translate-x-full'
                 } md:translate-x-0`}
             >
-                <div className="flex items-center gap-3 mb-8 md:mb-12 min-w-0">
+                <div className="flex items-center gap-3 mb-6 md:mb-12 shrink-0 min-w-0">
                     <div className="w-11 h-11 shrink-0 rounded-full border-[3px] border-ink bg-white p-0.5 shadow-neo-sm overflow-hidden">
                         <img
                             src="/logo.png"
@@ -423,7 +423,7 @@ const AdminDashboard = () => {
                     </button>
                 </nav>
 
-                <div className="mt-auto pt-8 border-t-2 border-ink/20 flex flex-col space-y-4">
+                <div className="shrink-0 mt-auto pt-6 md:pt-8 border-t-2 border-ink/20 flex flex-col space-y-4 pb-[max(1rem,env(safe-area-inset-bottom,0px))]">
                     <div className="px-4 py-3 bg-bg border-2 border-ink shadow-neo-sm flex items-center space-x-3">
                         <div className="w-9 h-9 bg-highlight-teal border-2 border-ink rounded-full flex items-center justify-center font-bold text-sm">
                             {admin?.username?.charAt(0).toUpperCase()}
