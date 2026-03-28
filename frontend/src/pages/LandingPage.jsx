@@ -15,22 +15,25 @@ const LandingPage = () => {
   const [agendas, setAgendas] = useState([]);
   const [schedules, setSchedules] = useState([]);
   const [faqs, setFaqs] = useState([]);
+  const [tracks, setTracks] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [eventRes, agendaRes, scheduleRes, faqRes] = await Promise.all([
+        const [eventRes, agendaRes, scheduleRes, faqRes, tracksRes] = await Promise.all([
           api.get('/event').catch(() => ({ data: null })),
           api.get('/agenda').catch(() => ({ data: [] })),
           api.get('/schedule').catch(() => ({ data: [] })),
           api.get('/faqs').catch(() => ({ data: [] })),
+          api.get('/tracks').catch(() => ({ data: [] })),
         ]);
 
         setEvent(eventRes.data);
         setAgendas(agendaRes.data);
         setSchedules(scheduleRes.data);
         setFaqs(faqRes.data);
+        setTracks(tracksRes.data || []);
       } catch (err) {
         console.error('Data fetching failed:', err);
         toast.error('Could not fetch data from server.');
@@ -69,7 +72,7 @@ const LandingPage = () => {
       />
       <Navbar />
       <Hero event={event} />
-      <About event={event} />
+      <About event={event} tracks={tracks} />
       <Agenda agendas={agendas} />
       <Schedule schedules={schedules} />
       <FAQs faqs={faqs} />

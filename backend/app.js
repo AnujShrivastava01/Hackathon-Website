@@ -26,6 +26,16 @@ app.use(
 app.use(express.json());
 app.use(cookieParser());
 
+/** Root URL (browser or uptime checks) — API lives under /api */
+app.get('/', (req, res) => {
+  res.json({
+    name: 'HackOcean API',
+    status: 'ok',
+    routes: '/api/*',
+    example: '/api/event',
+  });
+});
+
 const seedAdmin = async () => {
   try {
     const adminCount = await Admin.countDocuments();

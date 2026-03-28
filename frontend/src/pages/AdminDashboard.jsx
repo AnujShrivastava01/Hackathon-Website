@@ -3,7 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import api from '../api';
 import { REGISTRATION_URL } from '../constants';
-import { LayoutDashboard, Calendar, Clock, HelpCircle, Settings, LogOut, Plus, Trash2, Save, ExternalLink, RefreshCw } from 'lucide-react';
+import { LayoutDashboard, Calendar, Clock, HelpCircle, Layers, Settings, LogOut, Plus, Trash2, Save, ExternalLink, RefreshCw } from 'lucide-react';
 import toast, { Toaster } from 'react-hot-toast';
 
 const AdminDashboard = () => {
@@ -17,11 +17,13 @@ const AdminDashboard = () => {
     const [agendas, setAgendas] = useState([]);
     const [schedules, setSchedules] = useState([]);
     const [faqs, setFaqs] = useState([]);
+    const [tracks, setTracks] = useState([]);
 
     // Temporary/Edit States
     const [newAgenda, setNewAgenda] = useState({ title: '', description: '', day: 1, phase: 'Day 1' });
     const [newSchedule, setNewSchedule] = useState({ time: '', activity: '', description: '', day: 1 });
     const [newFaq, setNewFaq] = useState({ question: '', answer: '' });
+    const [newTrack, setNewTrack] = useState({ title: '', description: '', sortOrder: 0 });
 
     useEffect(() => {
         if (!admin) {
@@ -34,16 +36,18 @@ const AdminDashboard = () => {
     const fetchDashboardData = async () => {
         setIsLoading(true);
         try {
-            const [eRes, aRes, sRes, fRes] = await Promise.all([
+            const [eRes, aRes, sRes, fRes, tRes] = await Promise.all([
                 api.get('/event').catch(() => ({ data: { name: '', description: '', venue: '', contactEmail: '', contactPhone: '', registrationLink: '' } })),
                 api.get('/agenda').catch(() => ({ data: [] })),
                 api.get('/schedule').catch(() => ({ data: [] })),
-                api.get('/faqs').catch(() => ({ data: [] }))
+                api.get('/faqs').catch(() => ({ data: [] })),
+                api.get('/tracks').catch(() => ({ data: [] }))
             ]);
             setEvent(eRes.data || { name: '', description: '', venue: '', contactEmail: '', contactPhone: '', registrationLink: '' });
             setAgendas(aRes.data);
             setSchedules(sRes.data);
             setFaqs(fRes.data);
+            setTracks(tRes.data || []);
         } catch (err) {
             toast.error('Failed to load dashboard data');
         } finally {
@@ -133,6 +137,31 @@ const AdminDashboard = () => {
         }
     };
 
+    const handleAddTrack = async (e) => {
+        e.preventDefault();
+        try {
+            const res = await api.post('/tracks', {
+                ...newTrack,
+                sortOrder: Number(newTrack.sortOrder) || 0,
+            });
+            setTracks([...tracks, res.data].sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0)));
+            setNewTrack({ title: '', description: '', sortOrder: 0 });
+            toast.success('Track added');
+        } catch (err) {
+            toast.error('Failed to add track');
+        }
+    };
+
+    const handleDeleteTrack = async (id) => {
+        try {
+            await api.delete(`/tracks/${id}`);
+            setTracks(tracks.filter((t) => t._id !== id));
+            toast.success('Track removed');
+        } catch (err) {
+            toast.error('Failed to delete track');
+        }
+    };
+
     const tabBtn = (id) =>
         `w-full flex items-center space-x-4 px-6 py-4 rounded-xl font-bold border-2 transition-all ${
             activeTab === id
@@ -180,6 +209,9 @@ const AdminDashboard = () => {
                 <nav className="flex-1 space-y-3">
                     <button type="button" onClick={() => setActiveTab('event')} className={tabBtn('event')}>
                         <LayoutDashboard size={20} /> <span>Event details</span>
+                    </button>
+                    <button type="button" onClick={() => setActiveTab('tracks')} className={tabBtn('tracks')}>
+                        <Layers size={20} /> <span>Tracks</span>
                     </button>
                     <button type="button" onClick={() => setActiveTab('agenda')} className={tabBtn('agenda')}>
                         <Calendar size={20} /> <span>Agenda</span>
@@ -275,6 +307,84 @@ const AdminDashboard = () => {
                        </button>
                     </div>
                   </form>
+                )}
+
+                {/* --- TAB CONTENT: TRACKS --- */}
+                {activeTab === 'tracks' && (
+                  <div className="space-y-12 animate-in fade-in duration-500">
+                    <form onSubmit={handleAddTrack} className="bg-white border-[3px] border-ink shadow-neo p-10 rounded-neo space-y-8">
+                      <h3 className="text-2xl font-heading mb-8 border-b-2 border-ink/15 pb-4 uppercase tracking-wide flex items-center gap-2">
+                        <Layers size={22} /> New hackathon track
+                      </h3>
+                      <div className="grid md:grid-cols-2 gap-6">
+                        <div className="space-y-2">
+                          <label className="text-xs font-black uppercase tracking-widest text-ink/60 ml-1">Track title</label>
+                          <input
+                            required
+                            placeholder="Web & apps"
+                            value={newTrack.title}
+                            onChange={(e) => setNewTrack({ ...newTrack, title: e.target.value })}
+                            className="w-full bg-bg border-2 border-ink rounded-xl p-4 focus:border-ink outline-none font-medium shadow-neo-sm"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-xs font-black uppercase tracking-widest text-ink/60 ml-1">Display order</label>
+                          <input
+                            type="number"
+                            value={newTrack.sortOrder}
+                            onChange={(e) => setNewTrack({ ...newTrack, sortOrder: e.target.value })}
+                            className="w-full bg-bg border-2 border-ink rounded-xl p-4 focus:border-ink outline-none font-medium shadow-neo-sm"
+                          />
+                        </div>
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-xs font-black uppercase tracking-widest text-ink/60 ml-1">Description</label>
+                        <textarea
+                          rows="3"
+                          required
+                          placeholder="What teams build in this track, APIs, and judging focus…"
+                          value={newTrack.description}
+                          onChange={(e) => setNewTrack({ ...newTrack, description: e.target.value })}
+                          className="w-full bg-bg border-2 border-ink rounded-xl p-4 focus:border-ink outline-none font-medium shadow-neo-sm leading-relaxed"
+                        />
+                      </div>
+                      <div className="flex justify-end">
+                        <button type="submit" className="btn-ink !py-4 rounded-xl flex items-center space-x-2 px-10 border-[3px]">
+                          <Plus size={20} /> <span className="font-bold uppercase tracking-widest text-xs">Add track</span>
+                        </button>
+                      </div>
+                    </form>
+
+                    <div className="space-y-6">
+                      <h3 className="text-2xl font-heading border-l-4 border-ink pl-4 uppercase tracking-wide">Published tracks</h3>
+                      <div className="grid lg:grid-cols-2 gap-6">
+                        {tracks.map((t) => (
+                          <div
+                            key={t._id}
+                            className="bg-white border-[3px] border-ink shadow-neo p-8 rounded-neo group flex justify-between items-start gap-4"
+                          >
+                            <div>
+                              <div className="flex flex-wrap items-center gap-3 mb-2">
+                                <span className="px-3 py-1 bg-highlight-blue border-2 border-ink text-[10px] font-black uppercase tracking-[0.2em] text-ink shadow-neo-sm">
+                                  Order {t.sortOrder ?? 0}
+                                </span>
+                                <h4 className="text-xl font-bold font-sans normal-case tracking-normal">{t.title}</h4>
+                              </div>
+                              <p className="text-ink/70 text-sm leading-relaxed">{t.description}</p>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => handleDeleteTrack(t._id)}
+                              className="p-2 text-ink/50 hover:text-red-600 transition-colors border-2 border-transparent hover:border-red-200 shrink-0"
+                            >
+                              <Trash2 size={20} />
+                            </button>
+                          </div>
+                        ))}
+                        {tracks.length === 0 && <p className="text-ink/50 italic">No tracks yet — add one above for the landing page.</p>}
+                      </div>
+                    </div>
+                  </div>
                 )}
 
                 {/* --- TAB CONTENT: AGENDA --- */}
