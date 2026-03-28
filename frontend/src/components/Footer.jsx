@@ -4,6 +4,8 @@ import { FaGithub, FaTwitter, FaLinkedin, FaInstagram } from 'react-icons/fa';
 
 const BRAND = 'HackOcean';
 
+const CREDIT_HREF = 'https://www.linkedin.com/in/anujshrivastava1/';
+
 const Footer = ({ event }) => {
   const currentYear = new Date().getFullYear();
   const title = BRAND;
@@ -79,6 +81,15 @@ const Footer = ({ event }) => {
               © {currentYear} {title}. All rights reserved.
             </span>
           </div>
+          <a
+            href={CREDIT_HREF}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Made with love by Anuj Shrivastava (opens LinkedIn)"
+            className="inline-flex items-center gap-1 border-2 border-ink bg-white px-3 py-1.5 text-xs font-bold tracking-wide text-ink shadow-neo-sm transition-all hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5 hover:bg-highlight-teal/40"
+          >
+            Made with <span aria-hidden>❤️</span> by Anuj Shrivastava
+          </a>
           <div className="flex items-center gap-6">
             <a href="#" className="hover:text-ink hover:underline underline-offset-4">
               Security
