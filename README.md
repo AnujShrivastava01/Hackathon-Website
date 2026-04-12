@@ -137,14 +137,17 @@ npm run dev
 
 ---
 
-## Default admin (first run)
+## Admin credentials (env-driven)
 
-| Field | Value |
+Admin login credentials are read from `backend/.env`:
+
+| Field | Source |
 |-------|--------|
-| Username | `admin` |
-| Password | `admin123` |
+| Username | `ADMIN_USERNAME` |
+| Password | `ADMIN_PASSWORD` |
 
-Change these in production and use a strong `JWT_SECRET`.
+On backend startup, the admin record is seeded/synced from these values.
+Use a strong `JWT_SECRET` and secure admin credentials in production.
 
 ---
 
