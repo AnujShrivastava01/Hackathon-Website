@@ -11,7 +11,7 @@ const app = express();
 
 const corsOrigins = process.env.CORS_ORIGINS
   ? process.env.CORS_ORIGINS.split(',').map((s) => s.trim()).filter(Boolean)
-  : ['http://localhost:5173'];
+  : ['http://localhost:5173', 'https://hackocean.anujshrivastava.tech', 'http://hackocean.anujshrivastava.tech'];
 
 app.use(
   cors({
